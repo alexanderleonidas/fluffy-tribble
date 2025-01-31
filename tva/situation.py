@@ -1,5 +1,5 @@
 import string
-from globals import *
+from tva.globals import *
 from tva.voter import Voter
 
 class Situation:

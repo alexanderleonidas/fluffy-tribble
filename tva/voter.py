@@ -9,3 +9,5 @@ class Voter:
     def get_preferences(c):
         # Shuffles the candidate list
         return random.sample(c, len(c))
+
+    # TODO: implement voter happiness

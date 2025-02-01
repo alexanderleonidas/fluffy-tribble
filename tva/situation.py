@@ -1,6 +1,6 @@
 import string
-from tva.globals import *
-from tva.voter import Voter
+from globals import *
+from voter import Voter
 
 class Situation:
     def __init__(self):

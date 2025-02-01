@@ -1,5 +1,5 @@
 from collections import Counter, defaultdict
-from tva.globals import *
+from globals import *
 
 class Schemes:
     def __init__(self, preference_matrix):

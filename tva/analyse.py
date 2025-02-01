@@ -1,6 +1,6 @@
 from situation import Situation
 from schemes import Schemes
-from tva.globals import *
+from globals import *
 
 # Create the voting situation
 situation = Situation()

@@ -2,7 +2,7 @@ import random
 
 class Voter:
     def __init__(self, voter_id, candidates):
-        self.voter_id = voter_id
+        self.id = voter_id
         self.preferences = self.get_preferences(candidates)
 
     @staticmethod
@@ -11,3 +11,9 @@ class Voter:
         return random.sample(c, len(c))
 
     # TODO: implement voter happiness
+
+    def __str__(self):
+        return f'{self.preferences}'
+
+    def __repr__(self):
+        return str(self)

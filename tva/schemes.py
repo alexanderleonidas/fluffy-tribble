@@ -8,7 +8,7 @@ class Schemes:
     def plurality_voting(self):
         """ Apply plurality voting to determine the winner. """
         # Get first-choice votes
-        first_choices = [preferences[0] for preferences in self.preference_matrix]
+        first_choices = [voter.preferences[0] for voter in self.preference_matrix]
         # Count occurrences of each candidate
         vote_counts = Counter(first_choices)
         # Candidate with most votes
@@ -19,7 +19,7 @@ class Schemes:
     def voting_for_two(self):
         """ Apply vote-for-two voting to determine the winner. """
         # Get top two choices
-        top_two_choices = [preferences[:2] for preferences in self.preference_matrix]
+        top_two_choices = [voter.preferences[:2] for voter in self.preference_matrix]
         # Flatten list
         all_votes = [candidate for pair in top_two_choices for candidate in pair]
         # Count occurrences of each candidate
@@ -32,7 +32,7 @@ class Schemes:
     def anti_plurality_voting(self):
         """ Apply anti-plurality voting to determine the winner. """
         # Exclude last choice
-        votes = [preferences[:-1] for preferences in self.preference_matrix]
+        votes = [voter.preferences[:-1] for voter in self.preference_matrix]
         # Flatten list
         all_votes = [candidate for voter in votes for candidate in voter]
         # Count occurrences of each candidate
@@ -45,11 +45,11 @@ class Schemes:
     def borda_voting(self):
         """ Apply Borda count voting to determine the winner. """
         # Get total number of candidates
-        num_candidates = len(self.preference_matrix[0])
+        num_candidates = len(self.preference_matrix[0].preferences)
         # Dictionary to store candidate scores
         scores = defaultdict(int)
-        for preferences in self.preference_matrix:
-            for rank, candidate in enumerate(preferences):
+        for voter in self.preference_matrix:
+            for rank, candidate in enumerate(voter.preferences):
                 # Assign points
                 scores[candidate] += (num_candidates - 1 - rank)
         # Candidate with most points

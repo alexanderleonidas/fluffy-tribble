@@ -10,8 +10,6 @@ class Voter:
         # Shuffles the candidate list
         return random.sample(c, len(c))
 
-    # TODO: implement voter happiness
-
     def __str__(self):
         return f'{self.preferences}'
 

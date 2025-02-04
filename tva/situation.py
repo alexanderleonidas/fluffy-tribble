@@ -9,14 +9,11 @@ class Situation:
 
     def create_situation(self, num_voters=4):
         """ Creates a preference matrix """
-        voters = []
         preference_matrix = []
         for i in range(num_voters):
             voter = Voter(i, self.candidates)
-            voters.append(voter)
-            preference_matrix.append(voter.preferences)
-
-        return voters, preference_matrix
+            preference_matrix.append(voter)
+        return preference_matrix
 
     @staticmethod
     def create_candidates(num_candidates=4):

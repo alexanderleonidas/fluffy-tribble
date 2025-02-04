@@ -8,6 +8,7 @@ class Strategies:
         self.num_strategic = NUM_STRATEGIC_VOTERS
         self.strategic_voter_ids = sample(range(0, len(self.preference_matrix)), self.num_strategic)
 
+
     def compromising(self):
         """ A voter ranks an alternative insincerely higher than another """
         # strategic_preference_matrix = []

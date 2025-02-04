@@ -1,5 +1,6 @@
 from collections import Counter, defaultdict
 
+
 class Schemes:
     def __init__(self, preference_matrix):
         self.preference_matrix = preference_matrix

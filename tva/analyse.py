@@ -11,5 +11,5 @@ print(situation.preference_matrix)
 winner1 = schemes.anti_plurality_voting()
 winner2 = schemes.voting_for_two()
 winnner3 = schemes.borda_voting()
-print(winner1, winner2, winnner3)
+print("Anti plurality:",winner1,", Two voting:", winner2, ", Borda:", winnner3)
 

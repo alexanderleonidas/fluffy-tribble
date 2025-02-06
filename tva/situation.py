@@ -1,16 +1,17 @@
 import random
 import string
-from globals import *
-from voter import Voter
+from tva.globals import *
+from tva.voter import Voter
+import numpy as np
 
 class Situation:
     def __init__(self, num_voters, num_candidates, seed=None):
         self.seed = seed
         self.rng = random.Random(seed)
-        self.candidates = self.create_candidates(num_candidates)
-        self.voters, self.preference_matrix = self.create_situation(num_voters)
+        self.candidates = self.__create_candidates(num_candidates)
+        self.voters, self.preference_matrix = self.__create_situation(num_voters)
 
-    def create_situation(self, num_voters=4):
+    def __create_situation(self, num_voters=4):
         """ Creates a preference matrix """
         voters = []
         preference_matrix = []
@@ -22,14 +23,15 @@ class Situation:
 
         return voters, preference_matrix
 
+    def average_happiness(self, winner):
+        """ Calculate the average happiness of all voters. """
+        return np.mean([voter.happiness(winner) for voter in self.voters])
+
     @staticmethod
-    def create_candidates(num_candidates=4):
+    def __create_candidates(num_candidates=4):
         """Return a list of the first `n` uppercase letters of the alphabet."""
         n = min(max(num_candidates, 0), 26)  # Ensure n is between 0 and 26
         return list(string.ascii_uppercase[:n])
-
-# Example usage
-situation = Situation(4,5, seed=42)
-print(situation.voters)
-print(situation.candidates)
-print(situation.preference_matrix)
+    
+    def __repr__(self) -> str:
+        return f'Situation: {self.voters}'

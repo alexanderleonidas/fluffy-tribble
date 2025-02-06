@@ -1,5 +1,6 @@
 import random
 import numpy as np
+from enum import Enum
 
 class Voter:
     def __init__(self, voter_id, candidates, seed=None):
@@ -16,13 +17,11 @@ class Voter:
     def __repr__(self):
         return f'Voter {self.voter_id}: {self.preferences}'
 
-    # TODO: implement voter happiness
     def happiness(self, winner):
-        # Calculate the happiness of the voter based on the winner
-        # The happiness is the position of the winner in the voter's preference list
-        return len(self.preferences) - self.preferences.index(winner)
+        """
+        Happiness = How highly the winning candidate was ranked by the voter.
+        If a voter ranked the winner 1st, they are maximally happy.
+        If they ranked them last, they are completely unhappy.
+        """
+        return 1 - ((self.preferences.index(winner))/(len(self.preferences)-1))
     
-voter = Voter(1, ['A', 'B', 'C', 'D'], seed=42)
-# print(voter)
-# print(voter.happiness('A'))
-

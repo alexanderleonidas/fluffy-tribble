@@ -1,8 +1,8 @@
 import string
-from globals import *
-from voter import Voter
-from schemes import Schemes
-from strategies import Strategies
+from tva.globals import *
+from tva.voter import Voter
+from tva.schemes import Schemes
+from tva.strategies import Strategies
 
 class Situation:
     def __init__(self):

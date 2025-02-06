@@ -4,6 +4,24 @@ import math
 class Schemes:
     def __init__(self, preference_matrix):
         self.preference_matrix = preference_matrix
+        
+    def print_preference_matrix(self):
+        # Extract voter IDs
+        voter_ids = [f"V{voter.id}" for voter in self.preference_matrix]
+
+        # Convert Voter objects to lists of preferences
+        matrix = [voter.preferences for voter in self.preference_matrix]
+
+        # Transpose the matrix to print column-wise
+        transposed = list(zip(*matrix))
+
+        # Print the header with voter IDs
+        print("Preference matrix:")
+        print(f"{'        '} {' '.join(voter_ids)}")
+
+        # Print the matrix in a clean format
+        for i, row in enumerate(transposed):
+            print(f"Rank {i + 1}   {'  '.join(row)}")
 
     def plurality_voting(self):
         """Apply plurality voting to determine the winner."""
@@ -12,7 +30,7 @@ class Schemes:
         # Count occurrences of each candidate
         vote_counts = Counter(first_choices)
         # Candidate with most votes
-        winner = max(vote_counts, key=vote_counts.get)
+        winner = max(vote_counts, key=vote_counts.get) # type: ignore
 
         return winner
 
@@ -25,7 +43,7 @@ class Schemes:
         # Count occurrences of each candidate
         vote_counts = Counter(all_votes)
         # Candidate with most votes
-        winner = max(vote_counts, key=vote_counts.get)
+        winner = max(vote_counts, key=vote_counts.get) # type: ignore
         return winner
 
     def anti_plurality_voting(self):
@@ -37,7 +55,7 @@ class Schemes:
         # Count occurrences of each candidate
         vote_counts = Counter(all_votes)
         # Candidate with most points
-        winner = max(vote_counts, key=vote_counts.get)
+        winner = max(vote_counts, key=vote_counts.get) # type: ignore
         return winner
 
     def borda_voting(self):
@@ -51,7 +69,7 @@ class Schemes:
                 # Assign points (higher points for higher rank)
                 scores[candidate] += (num_candidates - 1 - rank)
         # Candidate with most points
-        winner = max(scores, key=scores.get)
+        winner = max(scores, key=scores.get) # type: ignore
         return winner
 
     # ------------------------------

@@ -1,6 +1,6 @@
 # analyse.py
 import copy
-from situation import Situation
+from tva.situation import Situation
 
 
 def run_voting_schemes(situation, strategy_name):
@@ -51,6 +51,9 @@ def run_voting_schemes(situation, strategy_name):
     print_scheme_output("Borda", winner_borda, happiness_borda, overall_happiness_borda)
 
     # Get strategic options dynamically for all schemes.
+    
+    print("\n--- Original SCHEME (S_i) ---")
+    schemes.print_preference_matrix()
     strategic_options = strategies.get_strategic_options(schemes)
     print("\n--- Strategic Voting Options (S_i) ---")
     for i, voter_options in enumerate(strategic_options):
@@ -91,7 +94,7 @@ def main():
     situation_compromising.print_preference_matrix()
     run_voting_schemes(situation_compromising, "Compromising")
 
-    # Burying Strategy:
+    # # Burying Strategy:
     situation_burying.strategies.burying()
     print("\n=== After Strategic (Burying) Adjustment ===")
     situation_burying.print_preference_matrix()

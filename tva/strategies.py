@@ -1,6 +1,6 @@
 # strategies.py
 import copy
-from globals import *
+from tva.globals import *
 from random import sample
 
 
@@ -99,7 +99,7 @@ class Strategies:
                     modified_voter.preferences = modified_preferences
 
                     # Create a temporary Schemes instance using the modified preference matrix.
-                    from schemes import Schemes
+                    from tva.schemes import Schemes
                     temp_schemes = Schemes(new_pref_matrix)
 
                     # Dynamically get the modified outcome and happiness methods.

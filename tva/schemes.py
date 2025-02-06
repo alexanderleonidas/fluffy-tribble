@@ -13,6 +13,7 @@ class Schemes:
         vote_counts = Counter(first_choices)
         # Candidate with most votes
         winner = max(vote_counts, key=vote_counts.get)
+
         return winner
 
     def voting_for_two(self):

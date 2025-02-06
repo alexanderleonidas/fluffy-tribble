@@ -11,6 +11,7 @@ class Strategies:
         # Randomly select the indices of voters that will vote strategically.
         self.strategic_voter_ids = sample(range(0, len(self.preference_matrix)), self.num_strategic)
 
+
     def compromising(self):
         """A voter ranks an alternative insincerely higher than another (compromising move)."""
         for voter in self.preference_matrix:

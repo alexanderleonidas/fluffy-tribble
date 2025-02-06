@@ -11,6 +11,10 @@ class Situation:
         self.schemes = Schemes(self.preference_matrix)
         self.strategies = Strategies(self.preference_matrix)
 
+    def get_happiness(self):
+        pass
+
+
     def create_situation(self, num_voters=4):
         """ Creates a preference matrix """
         preference_matrix = []
@@ -19,11 +23,13 @@ class Situation:
             preference_matrix.append(voter)
         return preference_matrix
 
+
     @staticmethod
-    def create_candidates(num_candidates=4):
+    def create_candidates(num_candidates):
         """Return a list of the first `n` uppercase letters of the alphabet."""
         n = min(max(num_candidates, 0), 26)  # Ensure n is between 0 and 26
         return list(string.ascii_uppercase[:n])
+
 
     def print_preference_matrix(self):
         # Extract voter IDs
@@ -36,7 +42,7 @@ class Situation:
         transposed = list(zip(*matrix))
 
         # Print the header with voter IDs
-        print("Voter preferences:")
+        print("Preference matrix:")
         print(f"{'        '} {' '.join(voter_ids)}")
 
         # Print the matrix in a clean format

@@ -79,6 +79,7 @@ def run_voting_schemes(situation, strategy_name):
 
 
 def main():
+    
     # Create the initial voting situation.
     situation = Situation()
     print("=== Initial Voting Situation ===")

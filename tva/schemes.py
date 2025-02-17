@@ -8,11 +8,11 @@ class Schemes:
     def print_results(self, situation, verbose=False):
         winner1, counts1 = self.anti_plurality_voting(situation.voters, True)
         winner2, counts2 = self.voting_for_two(situation.voters, True)
-        winnner3, counts3 = self.borda_voting(situation.voters, True)
+        winner3, counts3 = self.borda_voting(situation.voters, True)
         if verbose:
-            print("Anti plurality:", winner1, counts1, "\nTwo voting:", winner2, counts2, "\nBorda:", winnner3, counts3)
+            print("Anti plurality:", winner1, counts1, "\nTwo voting:", winner2, counts2, "\nBorda:", winner3, counts3)
         else:
-            print("Anti plurality:", winner1, ", Two voting:", winner2, ", Borda:", winnner3)
+            print("Anti plurality:", winner1, ", Two voting:", winner2, ", Borda:", winner3)
     
     def apply_voting_scheme(self, voting_scheme:VotingScheme, voters:list[Voter]):
         """ Apply the specified voting scheme to determine the winner. """

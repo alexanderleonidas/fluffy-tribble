@@ -1,27 +1,27 @@
 from tva.schemes import Schemes
 from tva.situation import Situation
 from tva.voter import Voter
-from tva.enums import VotingScheme
+from tva.enums import VotingScheme, Happiness
 import copy
 
 class Strategies:
     def __init__(self):
         self.schemes = Schemes()
         
-    def is_any_strategy_good(self, situation: Situation, voter_index: int, voting_scheme:VotingScheme) -> bool:
+    def is_any_strategy_good(self, situation: Situation, voter_index: int, voting_scheme:VotingScheme, happiness_func:Happiness) -> bool:
         """Returns a new set of preferences for the voter to improve its happiness"""
         
-        bullet_preferences = self.__bullet_vote(situation, voter_index, voting_scheme)
+        bullet_preferences = self.__bullet_vote(situation, voter_index, voting_scheme, happiness_func)
         if bullet_preferences:
             return bullet_preferences
-        return self.__bury_compromise(situation, voter_index, voting_scheme)
+        return self.__bury_compromise(situation, voter_index, voting_scheme, happiness_func)
     
-    def __bullet_vote(self, situation: Situation, voter_index: int, voting_scheme:VotingScheme) -> bool:
+    def __bullet_vote(self, situation: Situation, voter_index: int, voting_scheme:VotingScheme, happiness_func:Happiness) -> bool:
         """voting for just one alternative, despite having the option to vote for several"""
         voter: Voter = situation.voters[voter_index]
         # Save the original happiness of this voter
         original_winner:str = self.schemes.apply_voting_scheme(voting_scheme, situation.voters) # type: ignore
-        original_happiness = voter.calculate_happiness(original_winner, voting_scheme)
+        original_happiness = voter.calculate_happiness(original_winner, happiness_func)
         voters: list[Voter] =  copy.deepcopy(situation.voters)
         
         bullet_preferences:list[list[str]] = self.__get_bullet_preferences(voter.preferences)
@@ -31,7 +31,7 @@ class Strategies:
             # print("Permutation:", original_preferences)
             new_winner:str = self.schemes.apply_voting_scheme(voting_scheme, voters) # type: ignore
             # Calculate the happiness of the voter with the new preference
-            happiness = voter.calculate_happiness(new_winner, voting_scheme)
+            happiness = voter.calculate_happiness(new_winner, happiness_func)
             if happiness > original_happiness:
                 return True
         return False
@@ -43,13 +43,13 @@ class Strategies:
         first_element = elements[0]
         return [[first_element, e] for e in elements[1:]]
 
-    def __bury_compromise(self, situation: Situation, voter_index: int, voting_scheme:VotingScheme) -> bool:
+    def __bury_compromise(self, situation: Situation, voter_index: int, voting_scheme:VotingScheme, happiness_func:Happiness) -> bool:
         """Returns true if the voter can benefit from a strategic vote"""
         voter: Voter = situation.voters[voter_index]
         
         # Save the original happiness of this voter
         original_winner:str = self.schemes.apply_voting_scheme(voting_scheme, situation.voters) # type: ignore
-        original_happiness = voter.calculate_happiness(original_winner, voting_scheme)
+        original_happiness = voter.calculate_happiness(original_winner, happiness_func)
         voters: list[Voter] =  copy.deepcopy(situation.voters)
 
         # Get all preference permutations
@@ -60,7 +60,7 @@ class Strategies:
             # print("Permutation:", original_preferences)
             new_winner:str = self.schemes.apply_voting_scheme(voting_scheme, voters) # type: ignore
             # Calculate the happiness of the voter with the new preference
-            happiness = voter.calculate_happiness(new_winner, voting_scheme)
+            happiness = voter.calculate_happiness(new_winner, happiness_func)
             if happiness > original_happiness:
                 return True
         return False

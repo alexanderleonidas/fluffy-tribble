@@ -2,7 +2,8 @@ import random
 import string
 from tva.voter import Voter
 import numpy as np
-from tva.enums import VotingScheme
+from tva.enums import VotingScheme, Happiness
+
 
 class Situation:
     def __init__(self, num_voters, num_candidates, seed=None):
@@ -27,9 +28,9 @@ class Situation:
 
         return voters
 
-    def average_happiness(self, winner, voting_scheme:VotingScheme):
+    def average_happiness(self, winner, happiness_func:Happiness):
         """ Calculate the total happiness of all voters. """
-        return np.sum([voter.calculate_happiness(winner, voting_scheme) for voter in self.voters])
+        return np.sum([voter.calculate_happiness(winner, happiness_func) for voter in self.voters])
 
     @staticmethod
     def __create_candidates(num_candidates=4):

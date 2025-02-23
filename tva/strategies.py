@@ -8,47 +8,48 @@ class Strategies:
     def __init__(self):
         self.schemes = Schemes()
         
-    def is_any_strategy_good(self, situation: Situation, voter_index: int, voting_scheme:VotingScheme, happiness_func:Happiness) -> bool:
+    def is_any_strategy_good(self, situation: Situation, voter_index: int, voting_scheme:VotingScheme, happiness_func:Happiness) -> dict[str,list[str]|None]:
         """Returns a new set of preferences for the voter to improve its happiness"""
         
+        winning_strategies: dict[str,list[str]|None] = {}
         bullet_preferences = self.__bullet_vote(situation, voter_index, voting_scheme, happiness_func)
-        if bullet_preferences:
-            return bullet_preferences
-        return self.__bury(situation, voter_index, voting_scheme, happiness_func, verbose=False)
+        winning_strategies["bullet"] = bullet_preferences
+        bury_preferences = self.__bury(situation, voter_index, voting_scheme, happiness_func, verbose=False)
+        winning_strategies["bury"] = bury_preferences
+        return winning_strategies
     
-    def __bullet_vote(self, situation: Situation, voter_index: int, voting_scheme:VotingScheme, happiness_func:Happiness) -> bool:
+    def __bullet_vote(self, situation: Situation, voter_index: int, voting_scheme:VotingScheme, happiness_func:Happiness) -> list[str]|None:
         """voting for just one alternative, despite having the option to vote for several"""
         voter: Voter = situation.voters[voter_index]
         # Save the original happiness of this voter
-        original_winner:str = self.schemes.apply_voting_scheme(voting_scheme, situation.voters) # type: ignore
-        original_happiness = voter.calculate_happiness(original_winner, happiness_func)
-        voters: list[Voter] =  copy.deepcopy(situation.voters)
-        
-        bullet_preferences:list[list[str]] = self.__get_bullet_preferences(voter.preferences)
-        for pref in bullet_preferences:
-            # Find the winner of the voting scheme with the new preference
-            voters[voter_index].preferences = pref
-            # print("Permutation:", original_preferences)
-            new_winner:str = self.schemes.apply_voting_scheme(voting_scheme, voters) # type: ignore
-            # Calculate the happiness of the voter with the new preference
-            happiness = voter.calculate_happiness(new_winner, happiness_func)
-            if happiness > original_happiness:
-                return True
-        return False
-    
-    def __get_bullet_preferences(self, elements:list[str]):
-        """
-        Given an array of elements return a list of lists with each element as a list
-        """
-        first_element = elements[0]
-        return [[first_element, e] for e in elements[1:]]
+        current_winner:str = schemes.apply_voting_scheme(voting_scheme, situation.voters) # type: ignore
+        # If the current winner is the same as the voter's first preference, there is no need to bullet vote
+        if current_winner == voter.preferences[0]:
+            return None
+
+        original_happiness = voter.calculate_happiness(current_winner, happiness_func)
+        new_situation = copy.deepcopy(situation)
+
+        # If the winner is not the first preference of the voter, remove the winner from the voter's preferences
+        # Repeat as long as the list of preferences is not empty
+        while len(new_situation.voters[voter_index].preferences) > 0:
+            if current_winner not in new_situation.voters[voter_index].preferences:
+                return None
+            
+            new_situation.voters[voter_index].preferences.remove(current_winner)
+            current_winner:str = schemes.apply_voting_scheme(voting_scheme, new_situation.voters) # type: ignore
+            current_happiness = voter.calculate_happiness(current_winner, happiness_func)
+            if current_happiness > original_happiness:
+                return new_situation.voters[voter_index].preferences
+            # If the happiness of the voter is not increased, try to remove the second preference
+        return None
     
     def __swap(self, situation:Situation, voter_id:int, candidate1_index:int, candidate2_index:int, verbose=False):
         if verbose:
             print(f"Swapping {situation.voters[voter_id].preferences[candidate1_index]} and {situation.voters[voter_id].preferences[candidate2_index]}")
         situation.voters[voter_id].preferences[candidate1_index], situation.voters[voter_id].preferences[candidate2_index] = situation.voters[voter_id].preferences[candidate2_index], situation.voters[voter_id].preferences[candidate1_index]
 
-    def __bury(self, situation:Situation, voter_index:int, voting_scheme:VotingScheme, happiness_func:Happiness, verbose=False):
+    def __bury(self, situation:Situation, voter_index:int, voting_scheme:VotingScheme, happiness_func:Happiness, verbose=False) -> None | list[str]:
         original_voter = situation.voters[voter_index]
         original_preferences = situation.voters[voter_index].preferences
         # If the original winner is the first preference of the voter, return False
@@ -61,8 +62,12 @@ class Strategies:
             print("Borda:", original_winner, scores)
 
         if original_winner_index == 0:
-            return False
-        return self.__recursive_bury(situation, voter_index, [original_preferences], original_voter, original_winner_happiness, voting_scheme, happiness_func, verbose)
+            return None
+        past_preferences = [original_preferences]
+        did_find_winning_strategy = self.__recursive_bury(situation, voter_index, past_preferences, original_voter, original_winner_happiness, voting_scheme, happiness_func, verbose)
+        if did_find_winning_strategy:
+            return past_preferences[-1]
+        return None
 
     def __recursive_bury(self, situation:Situation, voter_index:int, past_preferences:list, original_voter:Voter, original_winner_happiness:float, voting_scheme:VotingScheme, happiness_func:Happiness, verbose=False):
         starting_preferences = situation.voters[voter_index].preferences

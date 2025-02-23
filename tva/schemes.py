@@ -64,13 +64,14 @@ class Schemes:
         # Get total number of candidates
         # Dictionary to store candidate scores
         scores = defaultdict(int)
+        # Get the maximum number of candidates in any voter's list
+        total_candidates = max(len(voter.preferences) for voter in voters)
         for voter in voters:
-            num_candidates = len(voter.preferences)
+        # Wenn ein Voter bullet votet, enthält seine Liste nur einen Kandidaten.
+            m = total_candidates if len(voter.preferences) == 1 else len(voter.preferences)
             for rank, candidate in enumerate(voter.preferences):
-                # Assign points
-                scores[candidate] += (num_candidates - 1 - rank)
-        # Candidate with most points
-        winner = max(scores, key=scores.get) # type: ignore
+                scores[candidate] += (m - 1 - rank)
+        winner = max(scores, key=scores.get)
         if return_scores:
             return winner, dict(scores)
         return winner

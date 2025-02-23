@@ -6,7 +6,7 @@ from tva.enums import VotingScheme, Happiness
 
 
 class Situation:
-    def __init__(self, num_voters, num_candidates, seed=None):
+    def __init__(self, num_voters, num_candidates, seed=None, candidates=None, voters=None):
         assert num_candidates > 0, "Number of candidates must be greater than 0."
         assert num_candidates < 10, "If the number of candidates is greater than 9, there are too many permutations to calculate quickly."
         if seed is not None:
@@ -15,8 +15,19 @@ class Situation:
         else:
             self.seed = seed
         self.rng = random.Random(seed)
-        self.candidates = self.__create_candidates(num_candidates)
-        self.voters:list[Voter] = self.__create_situation(num_voters)
+        if candidates is None:
+            self.candidates = self.__create_candidates(num_candidates)
+        else:
+            self.candidates = candidates
+        if voters is None:
+            self.voters:list[Voter] = self.__create_situation(num_voters)
+        else:
+            if all(isinstance(v, list) for v in voters):
+                self.voters = []
+                for i, pref in enumerate(voters):
+                    voter = Voter(i, self.candidates)
+                    voter.preferences = pref
+                    self.voters.append(voter)
 
     def __create_situation(self, num_voters=4) -> list[Voter]:
         """ Creates a preference matrix """

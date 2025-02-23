@@ -5,7 +5,7 @@ from tva.enums import VotingScheme
 
 
 class Schemes:
-    def print_results(self, situation, verbose=False):
+    def print_results(self, situation, verbose=True):
         winner1, counts1 = self.anti_plurality_voting(situation.voters, True)
         winner2, counts2 = self.voting_for_two(situation.voters, True)
         winner3, counts3 = self.borda_voting(situation.voters, True)

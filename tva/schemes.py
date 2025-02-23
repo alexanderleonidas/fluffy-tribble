@@ -14,16 +14,16 @@ class Schemes:
         else:
             print("Anti plurality:", winner1, ", Two voting:", winner2, ", Borda:", winner3)
     
-    def apply_voting_scheme(self, voting_scheme:VotingScheme, voters:list[Voter]):
+    def apply_voting_scheme(self, voting_scheme:VotingScheme, voters:list[Voter], return_scores=False):
         """ Apply the specified voting scheme to determine the winner. """
         if voting_scheme == VotingScheme.PLURALITY:
-            return self.__plurality_voting(voters)
+            return self.__plurality_voting(voters, return_scores=return_scores)
         elif voting_scheme == VotingScheme.VOTE_FOR_TWO:
-            return self.__voting_for_two(voters)
+            return self.__voting_for_two(voters, return_scores=return_scores)
         elif voting_scheme == VotingScheme.ANTI_PLURALITY:
-            return self.__anti_plurality_voting(voters)
+            return self.__anti_plurality_voting(voters, return_scores=return_scores)
         elif voting_scheme == VotingScheme.BORDA:
-            return self.__borda_voting(voters)
+            return self.__borda_voting(voters, return_scores=return_scores)
     
     def __plurality_voting(self, voters:list[Voter], return_scores=False):
         """ Apply plurality voting to determine the winner. """
@@ -31,8 +31,8 @@ class Schemes:
         first_choices = [voter.preferences[0] for voter in voters]
         # Count occurrences of each candidate
         vote_counts = Counter(first_choices)
-        # Candidate with most votes
-        winner = max(vote_counts, key=vote_counts.get) # type: ignore
+        # Candidate with most votes, break ties alphabetically
+        winner = min(vote_counts.items(), key=lambda item: (-item[1], item[0]))[0]
         if return_scores:
             return winner, dict(vote_counts)
         return winner
@@ -45,7 +45,7 @@ class Schemes:
         # Count occurrences of each candidate
         vote_counts = Counter(all_votes)
         # Candidate with most votes
-        winner = max(vote_counts, key=vote_counts.get) # type: ignore
+        winner = min(vote_counts.items(), key=lambda item: (-item[1], item[0]))[0]
         if return_scores:
             return winner, dict(vote_counts)
         return winner
@@ -67,11 +67,13 @@ class Schemes:
         # Get the maximum number of candidates in any voter's list
         total_candidates = max(len(voter.preferences) for voter in voters)
         for voter in voters:
-        # Wenn ein Voter bullet votet, enthält seine Liste nur einen Kandidaten.
+            # Number of points to assign to each candidate
             m = total_candidates if len(voter.preferences) == 1 else len(voter.preferences)
             for rank, candidate in enumerate(voter.preferences):
+                # Assign points
                 scores[candidate] += (m - 1 - rank)
-        winner = max(scores, key=scores.get)
+        # Candidate with most points
+        winner = min(scores.items(), key=lambda item: (-item[1], item[0]))[0]
         if return_scores:
             return winner, dict(scores)
         return winner

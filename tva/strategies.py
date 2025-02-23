@@ -43,7 +43,7 @@ class Strategies:
         first_element = elements[0]
         return [[first_element, e] for e in elements[1:]]
     
-    def swap(self, situation:Situation, voter_id:int, candidate1_index:int, candidate2_index:int, verbose=False):
+    def __swap(self, situation:Situation, voter_id:int, candidate1_index:int, candidate2_index:int, verbose=False):
         if verbose:
             print(f"Swapping {situation.voters[voter_id].preferences[candidate1_index]} and {situation.voters[voter_id].preferences[candidate2_index]}")
         situation.voters[voter_id].preferences[candidate1_index], situation.voters[voter_id].preferences[candidate2_index] = situation.voters[voter_id].preferences[candidate2_index], situation.voters[voter_id].preferences[candidate1_index]
@@ -62,9 +62,9 @@ class Strategies:
 
         if original_winner_index == 0:
             return False
-        return self.recursive_bury(situation, voter_index, [original_preferences], original_voter, original_winner_happiness, voting_scheme, happiness_func, verbose)
+        return self.__recursive_bury(situation, voter_index, [original_preferences], original_voter, original_winner_happiness, voting_scheme, happiness_func, verbose)
 
-    def recursive_bury(self, situation:Situation, voter_index:int, past_preferences:list, original_voter:Voter, original_winner_happiness:float, voting_scheme:VotingScheme, happiness_func:Happiness, verbose=False):
+    def __recursive_bury(self, situation:Situation, voter_index:int, past_preferences:list, original_voter:Voter, original_winner_happiness:float, voting_scheme:VotingScheme, happiness_func:Happiness, verbose=False):
         starting_preferences = situation.voters[voter_index].preferences
         num_candidates = len(starting_preferences)
         modified_situation = copy.deepcopy(situation)
@@ -76,7 +76,7 @@ class Strategies:
         
         # Keep moving the winner to the right until it chantes the winner or reaches the end of the loop
         for i in range(starting_winner_index+1, num_candidates):
-            self.swap(modified_situation, voter_index, i-1, i, verbose)
+            self.__swap(modified_situation, voter_index, i-1, i, verbose)
             new_preferences = modified_situation.voters[voter_index].preferences
             if verbose:
                 print(new_preferences)
@@ -101,7 +101,7 @@ class Strategies:
                 else:
                     if verbose:
                         print("Winner changed")
-                    found_winning_strategy = self.recursive_bury(modified_situation, voter_index, past_preferences, original_voter, original_winner_happiness, voting_scheme, happiness_func, verbose)
+                    found_winning_strategy = self.__recursive_bury(modified_situation, voter_index, past_preferences, original_voter, original_winner_happiness, voting_scheme, happiness_func, verbose)
                     if found_winning_strategy:
                         return True
 

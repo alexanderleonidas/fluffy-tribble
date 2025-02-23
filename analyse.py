@@ -47,10 +47,10 @@ for voter in situation.voters:
     for mod_prefs, outcome, ind_hap in bury_opt:
         diff = ind_hap - og_happiness_voter
         overall = situation.average_happiness(outcome, happiness_func)
-        print(f"({', '.join(mod_prefs)}) | {outcome} | {ind_hap:.2f} | {og_happiness_voter:.2f} | {overall:.2f} | {honest_overall_happiness:.2f} | +{diff:.2f}")
+        print(f"BURYING: ({', '.join(mod_prefs)}) | {outcome} | {ind_hap:.2f} | {og_happiness_voter:.2f} | {overall:.2f} | {honest_overall_happiness:.2f} | +{diff:.2f}")
     for mod_prefs, outcome, ind_hap in bullet_opt:
         diff = ind_hap - og_happiness_voter
         overall = situation.average_happiness(outcome, happiness_func)
-        print(f"({', '.join(mod_prefs)}) | {outcome} | {ind_hap:.2f} | {og_happiness_voter:.2f} | {overall:.2f} | {honest_overall_happiness:.2f} | +{diff:.2f}")
+        print(f"BULLET: ({', '.join(mod_prefs)}) | {outcome} | {ind_hap:.2f} | {og_happiness_voter:.2f} | {overall:.2f} | {honest_overall_happiness:.2f} | +{diff:.2f}")
 
 print("\nRisk of strategic voting:", risk, "%")

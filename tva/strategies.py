@@ -83,3 +83,47 @@ class Strategies:
                 for perm in self.__permute(elements[:i] + elements[i+1:], first_element):
                     perms.append([first_element, e] + perm)
             return perms
+        
+    def bullet_options(self, situation: Situation, voter_index: int, voting_scheme:VotingScheme, happiness_func:Happiness) -> list:
+        """voting for just one alternative, despite having the option to vote for several"""
+        voter: Voter = situation.voters[voter_index]
+        # Save the original happiness of this voter
+        original_winner:str = self.schemes.apply_voting_scheme(voting_scheme, situation.voters) # type: ignore
+        original_happiness = voter.calculate_happiness(original_winner, happiness_func)
+        voters: list[Voter] =  copy.deepcopy(situation.voters)
+        strategic_options = []
+        
+        bullet_preferences:list[list[str]] = self.__get_bullet_preferences(voter.preferences)
+        for pref in bullet_preferences:
+            # Find the winner of the voting scheme with the new preference
+            voters[voter_index].preferences = pref
+            # print("Permutation:", original_preferences)
+            new_winner:str = self.schemes.apply_voting_scheme(voting_scheme, voters) # type: ignore
+            # Calculate the happiness of the voter with the new preference
+            happiness = voter.calculate_happiness(new_winner, happiness_func)
+            if happiness > original_happiness:
+                strategic_options.append((pref, new_winner, happiness))
+        return strategic_options
+    
+    def bury_options(self, situation: Situation, voter_index: int, voting_scheme:VotingScheme, happiness_func:Happiness) -> list:
+        voter: Voter = situation.voters[voter_index]
+        
+        # Save the original happiness of this voter
+        original_winner:str = self.schemes.apply_voting_scheme(voting_scheme, situation.voters) # type: ignore
+        original_happiness = voter.calculate_happiness(original_winner, happiness_func)
+        voters: list[Voter] =  copy.deepcopy(situation.voters)
+        strategic_options = []
+
+        # Get all preference permutations
+        permutations:list[list[str]] = self.__get_permutations(voter.preferences)
+        for perm in permutations:
+            # Find the winner of the voting scheme with the new preference
+            voters[voter_index].preferences = perm
+            # print("Permutation:", original_preferences)
+            new_winner:str = self.schemes.apply_voting_scheme(voting_scheme, voters) # type: ignore
+            # Calculate the happiness of the voter with the new preference
+            happiness = voter.calculate_happiness(new_winner, happiness_func)
+            if happiness > original_happiness:
+                strategic_options.append((perm, new_winner, happiness))
+        return strategic_options
+    

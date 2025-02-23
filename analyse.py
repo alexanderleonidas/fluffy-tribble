@@ -29,10 +29,10 @@ for i in range(nr_repetitions):
 honest_winner = schemes.apply_voting_scheme(voting_scheme, situation.voters)
 # Happiness level for each voter
 for voter in situation.voters:
-    print("Voter", voter.voter_id + 1, "happiness:", voter.calculate_happiness(honest_winner, happiness_func))
+    print(f"Voter {voter.voter_id + 1} happiness: {voter.calculate_happiness(honest_winner, happiness_func):.2f}")
 honest_overall_happiness = situation.average_happiness(honest_winner, happiness_func)
-print("Honest winner:", honest_winner)
-print("Honest overall happiness:", honest_overall_happiness)
+print(f"Honest winner: {honest_winner}")
+print(f"Honest overall happiness: {honest_overall_happiness:.2f}")
 risk = (strategy_counter/nr_repetitions) * 100
 
 for voter in situation.voters:
@@ -53,4 +53,4 @@ for voter in situation.voters:
         overall = situation.average_happiness(outcome, happiness_func)
         print(f"BULLET: ({', '.join(mod_prefs)}) | {outcome} | {ind_hap:.2f} | {og_happiness_voter:.2f} | {overall:.2f} | {honest_overall_happiness:.2f} | +{diff:.2f}")
 
-print("\nRisk of strategic voting:", risk, "%")
+print(f"\nRisk of strategic voting: {risk:.2f}%")

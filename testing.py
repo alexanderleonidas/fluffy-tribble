@@ -15,7 +15,7 @@ voting_scheme = VotingScheme.BORDA
 strategies = Strategies()
 schemes = Schemes()
 # Happiness function
-happiness_func = Happiness.LOG
+happiness_func = Happiness.EXP
 
 voters1 = [
     ['A', 'B', 'C', 'D'],

@@ -69,18 +69,18 @@ class Strategies:
         Given an array of elements print every possible way to permutate the alternatives
         Skip the first element
         """
-        first_element = elements[0]
-        elements = elements[1:]
-        return self.__permute(elements, first_element)
+        perms = self.__permute(elements)
+        return [perm for perm in perms]
 
-    def __permute(self, elements, first_element):
+    def __permute(self, elements: list[str]) -> list[list[str]]:
         if len(elements) == 1:
             return [elements]
         else:
             perms = []
             for i, e in enumerate(elements):
-                for perm in self.__permute(elements[:i] + elements[i+1:], first_element):
-                    perms.append([first_element, e] + perm)
+                rest = elements[:i] + elements[i+1:]
+                for perm in self.__permute(rest):
+                    perms.append([e] + perm)
             return perms
         
     def bullet_options(self, situation: Situation, voter_index: int, voting_scheme:VotingScheme, happiness_func:Happiness) -> list:

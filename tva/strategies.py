@@ -38,10 +38,9 @@ class Strategies:
     
     def __get_bullet_preferences(self, elements:list[str]):
         """
-        Given an array of elements return a list of lists where each list contains only the first element plus one of the other alternatives
+        Given an array of elements return a list of lists with each element as a list
         """
-        first_element = elements[0]
-        return [[first_element, e] for e in elements[1:]]
+        return [[elements[0]]]
 
     def __bury_compromise(self, situation: Situation, voter_index: int, voting_scheme:VotingScheme, happiness_func:Happiness) -> bool:
         """Returns true if the voter can benefit from a strategic vote"""

@@ -1,8 +1,8 @@
 import random
 import string
-from tva.voter import Voter
+from voter import Voter
 import numpy as np
-from tva.enums import VotingScheme
+from enums import VotingScheme
 
 class Situation:
     def __init__(self, num_voters, num_candidates, seed=None):

@@ -1,6 +1,6 @@
 from collections import Counter, defaultdict
-from tva.voter import Voter
-from tva.enums import VotingScheme
+from voter import Voter
+from enums import VotingScheme
 
 
 

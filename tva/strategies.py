@@ -1,7 +1,7 @@
-from tva.schemes import Schemes
-from tva.situation import Situation
-from tva.voter import Voter
-from tva.enums import VotingScheme
+from schemes import Schemes
+from situation import Situation
+from voter import Voter
+from enums import VotingScheme
 import copy
 
 class Strategies:
@@ -83,3 +83,19 @@ class Strategies:
                 for perm in self.__permute(elements[:i] + elements[i+1:], first_element):
                     perms.append([first_element, e] + perm)
             return perms
+        
+
+situation = Situation(num_voters=4, num_candidates=4, seed=42)
+strategies = Strategies()
+schemes = Schemes()
+
+print(situation)
+winner1, scores = schemes.borda_voting(situation.voters, return_scores=True)
+print("Borda:", winner1, scores)
+
+# for i in range(4):
+i = 2
+bullet_vote_improvement = strategies.is_any_strategy_good(situation, i, VotingScheme.BORDA)
+bury_compromise_improvement = strategies.is_any_strategy_good(situation, i, VotingScheme.BORDA)
+print(f"Voter {i} can improve happiness with bullet vote: {bullet_vote_improvement}, with bury compromise: {bury_compromise_improvement}")
+

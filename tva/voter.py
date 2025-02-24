@@ -1,7 +1,7 @@
 import random
 from enum import Enum
 import math
-from tva.enums import VotingScheme
+from enums import VotingScheme
 
 class Voter:
     def __init__(self, voter_id, candidates, seed=None):

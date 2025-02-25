@@ -2,8 +2,6 @@ from collections import Counter, defaultdict
 from tva.voter import Voter
 from tva.enums import VotingScheme
 
-
-
 class Schemes:
     def print_results(self, situation, verbose=False):
         winner1, counts1 = self.__anti_plurality_voting(situation.voters, True)
@@ -22,8 +20,9 @@ class Schemes:
             return self.__voting_for_two(voters, return_scores=return_scores)
         elif voting_scheme == VotingScheme.ANTI_PLURALITY:
             return self.__anti_plurality_voting(voters, return_scores=return_scores)
-        elif voting_scheme == VotingScheme.BORDA:
-            return self.__borda_voting(voters, return_scores=return_scores)
+        # elif voting_scheme == VotingScheme.BORDA:
+        return self.__borda_voting(voters, return_scores=return_scores)
+
     
     def __plurality_voting(self, voters:list[Voter], return_scores=False):
         """ Apply plurality voting to determine the winner. """

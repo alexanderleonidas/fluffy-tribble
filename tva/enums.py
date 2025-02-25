@@ -1,14 +1,20 @@
 from enum import Enum
 
+
 # Enum class for voting schemes
 class VotingScheme(Enum):
-    PLURALITY = 1
-    VOTE_FOR_TWO = 2
-    ANTI_PLURALITY = 3
-    BORDA = 4
+    PLURALITY = 'PLURALITY'
+    VOTE_FOR_TWO = 'VOTE FOR TWO'
+    ANTI_PLURALITY = 'ANTI PLURALITY'
+    BORDA = 'BORDA'
 
 # Enum class for happiness functions
-class Happiness(Enum):
-    LOG = 1
-    EXP = 2
-    LINEAR = 3
+class HappinessFunc(Enum):
+    LOG = 'LOGARITHMIC'
+    EXP = 'EXPONENTIAL'
+    LINEAR = 'LINEAR'
+
+class StrategyType(Enum):
+    COMPROMISING = 'COMPROMISING'
+    BURYING = 'BURYING'
+    BULLET = 'BULLET'

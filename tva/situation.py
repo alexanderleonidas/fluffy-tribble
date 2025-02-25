@@ -1,8 +1,6 @@
 import random
 import string
 from tva.voter import Voter
-import numpy as np
-from tva.enums import VotingScheme, Happiness
 
 
 class Situation:
@@ -39,10 +37,6 @@ class Situation:
 
         return voters
 
-    def average_happiness(self, winner, happiness_func:Happiness):
-        """ Calculate the total happiness of all voters. """
-        return np.sum([voter.calculate_happiness(winner, happiness_func) for voter in self.voters])
-
     @staticmethod
     def __create_candidates(num_candidates=4):
         """Return a list of the first `n` uppercase letters of the alphabet."""
@@ -54,3 +48,21 @@ class Situation:
         for voter in self.voters:
             message += str(voter) + "\n"
         return message
+
+    def print_preference_matrix(self):
+        # Extract voter IDs
+        voter_ids = [f"V{voter.voter_id}" for voter in self.voters]
+
+        # Convert Voter objects to lists of preferences
+        matrix = [voter.preferences for voter in self.voters]
+
+        # Transpose the matrix to print column-wise
+        transposed = list(zip(*matrix))
+
+        # Print the header with voter IDs
+        print("Preference matrix:")
+        print(f"{'        '} {' '.join(voter_ids)}")
+
+        # Print the matrix in a clean format
+        for i, row in enumerate(transposed):
+            print(f"Rank {i + 1}   {'  '.join(row)}")

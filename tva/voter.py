@@ -16,7 +16,3 @@ class Voter:
 
     def __repr__(self):
         return f'Voter {self.voter_id}: {self.preferences}'
-
-    # ------------------------------
-    # Scheme-specific happiness functions
-    # ------------------------------

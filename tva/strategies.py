@@ -11,12 +11,12 @@ class Strategies:
         self.schemes = Schemes()
         self.happiness = Happiness()
         
-    def analyse_situation(self, situation: Situation, voting_scheme:VotingScheme, happiness_func:HappinessFunc, strategy:StrategyType) -> dict[int, list[Situation]]:
+    def analyse_situation(self, situation: Situation, voting_scheme:VotingScheme, happiness_func:HappinessFunc, strategy:StrategyType, exhaustive_search=False) -> dict[int, list[Situation]]:
         """Prints the results of the voting schemes and the happiness of the voters"""
 
         strategic_situations = {}
         for voter in situation.voters:
-            strategic_preferences = self.get_strategic_preferences_for_voter(situation, voter.voter_id, voting_scheme, happiness_func, strategy)
+            strategic_preferences = self.get_strategic_preferences_for_voter(situation, voter.voter_id, voting_scheme, happiness_func, strategy, exhaustive_search=exhaustive_search)
             if strategic_preferences is None:
                 continue
             
@@ -29,26 +29,35 @@ class Strategies:
             strategic_situations[voter.voter_id] = situations
         return strategic_situations
 
-    def get_strategic_preferences_for_voter(self, situation: Situation, voter_index: int, voting_scheme:VotingScheme, happiness_func:HappinessFunc, strategy:StrategyType, verbose=False) -> list[list[str]] | None:
+    def get_strategic_preferences_for_voter(self, situation: Situation, voter_index: int, voting_scheme:VotingScheme, happiness_func:HappinessFunc, strategy:StrategyType, exhaustive_search, verbose=False) -> list[list[str]] | None:
         """Returns a new set of preferences for the voter to improve its happiness"""
         
         if strategy == StrategyType.BULLET:
-            return self.bullet_vote(situation, voter_index, voting_scheme, happiness_func)
+            return self.bullet_vote(situation, voter_index, voting_scheme, happiness_func, exhaustive_search=exhaustive_search)
         elif strategy == StrategyType.BURYING:
-            return self.bury(situation, voter_index, voting_scheme, happiness_func, verbose=verbose)
+            return self.bury(situation, voter_index, voting_scheme, happiness_func, exhaustive_search=exhaustive_search, verbose=verbose)
         # elif strategy == StrategyType.COMPROMISING:
-        return self.compromise(situation, voter_index, voting_scheme, happiness_func, verbose=verbose)
+        return self.compromise(situation, voter_index, voting_scheme, happiness_func, exhaustive_search=exhaustive_search, verbose=verbose)
     
     def bullet_vote(self, situation: Situation, voter_index: int, voting_scheme:VotingScheme, happiness_func:HappinessFunc, exhaustive_search=False) -> None | list[list[str]]:
         """voting for just one alternative, despite having the option to vote for several"""
         voter: Voter = situation.voters[voter_index]
-        # Save the original happiness of this voter
-        current_winner:str = schemes.apply_voting_scheme(voting_scheme, situation.voters) # type: ignore
-        # If the current winner is the same as the voter's first preference, there is no need to bullet vote
-        if current_winner == voter.preferences[0]:
-            return None
 
-        original_happiness = self.happiness.calculate_individual(voter.preferences, current_winner, happiness_func)
+        if happiness_func == HappinessFunc.WEIGHTED_POSITIONAL or happiness_func == HappinessFunc.KENDALL_TAU:
+            election_ranking = self.schemes.apply_voting_scheme(voting_scheme, situation.voters, return_ranking=True)
+            current_winner = election_ranking[0]
+            if current_winner == voter.preferences[0]:
+                return None
+            original_happiness = self.happiness.calculate_individual_ranked(voter.preferences, election_ranking, happiness_func)
+        else:
+            # Save the original happiness of this voter
+            current_winner:str = self.schemes.apply_voting_scheme(voting_scheme, situation.voters)
+            # If the current winner is the same as the voter's first preference, there is no need to bullet vote
+            if current_winner == voter.preferences[0]:
+                return None
+
+            original_happiness = self.happiness.calculate_individual(voter.preferences, current_winner, happiness_func)
+
         new_situation = copy.deepcopy(situation)
 
         winning_strategies = []
@@ -59,8 +68,13 @@ class Strategies:
                 return None
             
             new_situation.voters[voter_index].preferences.remove(current_winner)
-            current_winner:str = schemes.apply_voting_scheme(voting_scheme, new_situation.voters) # type: ignore
-            current_happiness = self.happiness.calculate_individual(voter.preferences, current_winner, happiness_func)
+            if happiness_func == HappinessFunc.WEIGHTED_POSITIONAL or happiness_func == HappinessFunc.KENDALL_TAU:
+                election_ranking = self.schemes.apply_voting_scheme(voting_scheme, new_situation.voters, return_ranking=True)
+                current_winner = election_ranking[0]
+                current_happiness = self.happiness.calculate_individual_ranked(voter.preferences, election_ranking, happiness_func)
+            else:
+                current_winner:str = self.schemes.apply_voting_scheme(voting_scheme, new_situation.voters)
+                current_happiness = self.happiness.calculate_individual(voter.preferences, current_winner, happiness_func)
 
             if current_happiness > original_happiness:
                 new_preferences = new_situation.voters[voter_index].preferences
@@ -70,7 +84,7 @@ class Strategies:
                     return [new_preferences]
             # If the happiness of the voter is not increased, try to remove the second preference
         
-        if winning_strategies == []:
+        if not winning_strategies:
             return None
         return winning_strategies
     
@@ -97,7 +111,9 @@ class Strategies:
         past_preferences = [original_preferences]
         winning_strategies = []
         did_find_winning_strategy = self.__recursive_bury(situation, voter_index, past_preferences, original_voter, original_winner_happiness, voting_scheme, happiness_func, exhaustive_search, winning_strategies, verbose)
-        if winning_strategies == []:
+        print(did_find_winning_strategy)
+        print(winning_strategies)
+        if not winning_strategies:
             return None
         return winning_strategies
 

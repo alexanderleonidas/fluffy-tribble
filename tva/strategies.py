@@ -17,6 +17,7 @@ class Strategies:
         strategic_situations = {}
         for voter in situation.voters:
             strategic_preferences = self.get_strategic_preferences_for_voter(situation, voter.voter_id, voting_scheme, happiness_func, strategy, exhaustive_search=exhaustive_search)
+            print(strategic_preferences)
             if strategic_preferences is None:
                 continue
             
@@ -110,9 +111,7 @@ class Strategies:
             return None
         past_preferences = [original_preferences]
         winning_strategies = []
-        did_find_winning_strategy = self.__recursive_bury(situation, voter_index, past_preferences, original_voter, original_winner_happiness, voting_scheme, happiness_func, exhaustive_search, winning_strategies, verbose)
-        print(did_find_winning_strategy)
-        print(winning_strategies)
+        _ = self.__recursive_bury(situation, voter_index, past_preferences, original_voter, original_winner_happiness, voting_scheme, happiness_func, exhaustive_search, winning_strategies, verbose)
         if not winning_strategies:
             return None
         return winning_strategies

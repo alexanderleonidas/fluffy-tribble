@@ -39,7 +39,10 @@ class BTVA:
         print('Individual happiness')
         print(" | ".join(f'Voter {k}: {h}' for k, h in individual_h.items()))
 
+
+        # ANALYSE STRATEGIC SITUATIONS HERE AND RETURN THE DATA IN THE OUTPUT_DICT
         strategic_situations = self.strategy.analyse_situation(situation, voting_scheme, happiness_func, strategy_type, exhaustive_search=True)
+        
         # You have to check, which of these strategic situations lower the overall happiness, since I couldn't do it in the strategies.py file
 
         # strategic_situation is a list of strategic preferences, so a list of lists
@@ -72,7 +75,7 @@ class BTVA:
 
 
 btva = BTVA()
-situation = Situation(10,5)
+situation = Situation(10,5, seed=42)
 print('Original Situation: ')
 situation.print_preference_matrix()
 happiness_func = HappinessFunc.EXP

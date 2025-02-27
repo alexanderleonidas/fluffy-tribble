@@ -33,12 +33,12 @@ class Schemes:
         # Count occurrences of each candidate
         vote_counts = Counter(all_votes)
         ranked_candidates = self.__get_rankings(all_candidates, vote_counts)
-        if return_scores:
+        if return_scores and return_ranking:
+            return ranked_candidates, dict(vote_counts)
+        elif return_scores:
             return ranked_candidates[0], dict(vote_counts)
         elif return_ranking:
             return ranked_candidates
-        elif return_scores and return_ranking:
-            return ranked_candidates, dict(vote_counts)
         return ranked_candidates[0]
 
     def __borda_voting(self, voters:list[Voter], return_scores=False, return_ranking=False):
@@ -55,12 +55,12 @@ class Schemes:
                 # Assign points
                 scores[candidate] += (m - 1 - rank)
         ranked_candidates = self.__get_rankings(all_candidates, scores)
-        if return_scores:
+        if return_scores and return_ranking:
+            return ranked_candidates, dict(scores)
+        elif return_scores:
             return ranked_candidates[0], dict(scores)
         elif return_ranking:
             return ranked_candidates
-        elif return_scores and return_ranking:
-            return ranked_candidates, dict(scores)
         return ranked_candidates[0]
 
     @staticmethod

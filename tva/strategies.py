@@ -17,7 +17,7 @@ class Strategies:
         strategic_situations = {}
         for voter in situation.voters:
             strategic_preferences = self.get_strategic_preferences_for_voter(situation, voter.voter_id, voting_scheme, happiness_func, strategy, exhaustive_search=exhaustive_search)
-            print(strategic_preferences)
+            # print(strategic_preferences)
             if strategic_preferences is None:
                 continue
             
@@ -98,10 +98,15 @@ class Strategies:
         original_voter = situation.voters[voter_index]
         original_preferences = situation.voters[voter_index].preferences
         # If the original winner is the first preference of the voter, return False
-        original_winner, scores = self.schemes.apply_voting_scheme(voting_scheme, situation.voters, return_scores=True)
-        original_winner_index = original_preferences.index(original_winner) # type: ignore
-
-        original_winner_happiness = self.happiness.calculate_individual(original_voter.preferences, original_winner, happiness_func)
+        if happiness_func == HappinessFunc.WEIGHTED_POSITIONAL or happiness_func == HappinessFunc.KENDALL_TAU:
+            election_ranking, scores = self.schemes.apply_voting_scheme(voting_scheme, situation.voters, return_ranking=True, return_scores=True)
+            original_winner = election_ranking[0]
+            original_winner_index = original_preferences.index(original_winner)
+            original_winner_happiness = self.happiness.calculate_individual_ranked(original_preferences, election_ranking, happiness_func)
+        else:
+            original_winner, scores = self.schemes.apply_voting_scheme(voting_scheme, situation.voters, return_scores=True)
+            original_winner_index = original_preferences.index(original_winner) # type: ignore
+            original_winner_happiness = self.happiness.calculate_individual(original_voter.preferences, original_winner, happiness_func)
 
         if verbose:
             print(original_preferences)
@@ -138,8 +143,13 @@ class Strategies:
                 continue
             past_preferences.append(copy.deepcopy(new_preferences))
 
-            current_winner, scores = self.schemes.apply_voting_scheme(voting_scheme, modified_situation.voters, return_scores=True)
-            current_winner_happiness = self.happiness.calculate_individual(original_voter.preferences, current_winner, happiness_func)
+            if happiness_func == HappinessFunc.KENDALL_TAU or happiness_func == HappinessFunc.WEIGHTED_POSITIONAL:
+                elections_ranking, scores = self.schemes.apply_voting_scheme(voting_scheme, modified_situation.voters, return_ranking=True, return_scores=True)
+                current_winner = elections_ranking[0]
+                current_winner_happiness = self.happiness.calculate_individual_ranked(original_voter.preferences, elections_ranking, happiness_func)
+            else:
+                current_winner, scores = self.schemes.apply_voting_scheme(voting_scheme, modified_situation.voters, return_scores=True)
+                current_winner_happiness = self.happiness.calculate_individual(original_voter.preferences, current_winner, happiness_func)
 
 
             if verbose:
@@ -190,9 +200,15 @@ class Strategies:
         original_voter = new_situation.voters[voter_index]
         original_preferences = new_situation.voters[voter_index].preferences
         # If the original winner is the first preference of the voter, return False
-        original_winner, scores = self.schemes.apply_voting_scheme(voting_scheme, new_situation.voters, return_scores=True)
-        original_winner_index = original_preferences.index(original_winner) # type: ignore
-        original_winner_happiness = self.happiness.calculate_individual(original_voter.preferences, original_winner, happiness_func)
+        if happiness_func == HappinessFunc.WEIGHTED_POSITIONAL or happiness_func == HappinessFunc.KENDALL_TAU:
+            election_ranking, scores = self.schemes.apply_voting_scheme(voting_scheme, new_situation.voters, return_scores=True, return_ranking=True)
+            original_winner = election_ranking[0]
+            original_winner_index = original_preferences.index(original_winner)
+            original_winner_happiness = self.happiness.calculate_individual_ranked(original_voter.preferences, election_ranking, happiness_func)
+        else:
+            original_winner, scores = self.schemes.apply_voting_scheme(voting_scheme, new_situation.voters, return_scores=True)
+            original_winner_index = original_preferences.index(original_winner) # type: ignore
+            original_winner_happiness = self.happiness.calculate_individual(original_voter.preferences, original_winner, happiness_func)
 
         if verbose:
             print(original_preferences)
@@ -208,8 +224,13 @@ class Strategies:
             # Move that candidate to the first position
             self.__swap(new_situation, voter_index, i, 0, verbose=verbose)
             # Check if the winner changed and if the voter is happier
-            new_winner, scores = self.schemes.apply_voting_scheme(voting_scheme, new_situation.voters, return_scores=True)
-            new_winner_happiness = self.happiness.calculate_individual(original_voter.preferences, new_winner, happiness_func)
+            if happiness_func == HappinessFunc.WEIGHTED_POSITIONAL or happiness_func == HappinessFunc.KENDALL_TAU:
+                new_election_ranking, scores = self.schemes.apply_voting_scheme(voting_scheme, new_situation.voters, return_scores=True, return_ranking=True)
+                new_winner = new_election_ranking[0]
+                new_winner_happiness = self.happiness.calculate_individual_ranked(original_voter.preferences, new_election_ranking, happiness_func)
+            else:
+                new_winner, scores = self.schemes.apply_voting_scheme(voting_scheme, new_situation.voters, return_scores=True)
+                new_winner_happiness = self.happiness.calculate_individual(original_voter.preferences, new_winner, happiness_func)
 
             if verbose:
                 print(new_situation.voters[voter_index].preferences)
@@ -224,7 +245,7 @@ class Strategies:
                     return [new_situation.voters[voter_index].preferences]
 
         if exhaustive_search:
-            if all_winning_preferences == []:
+            if not all_winning_preferences:
                 return None
             else:
                 return all_winning_preferences

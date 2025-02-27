@@ -87,8 +87,14 @@ class Happiness:
         concordant and discordant pairs. A normalized score is returned where
         1 represents perfect agreement and 0 represents complete disagreement.
         """
+        # Type safety check - ensure we have lists
+        if isinstance(voter_prefs, str):
+            voter_prefs = [voter_prefs]
+        if isinstance(election_ranking, str):
+            election_ranking = [election_ranking]
+
         # Create a set of all candidates from both rankings
-        all_candidates = set(voter_prefs + election_ranking)
+        all_candidates = set(voter_prefs).union(set(election_ranking))
 
         # Count concordant and discordant pairs
         concordant = 0
@@ -136,6 +142,12 @@ class Happiness:
         the election outcome matches a voter's preferences. Discrepancies
         in higher positions are weighted more heavily than lower positions.
         """
+        # Type safety check - ensure we have lists
+        if isinstance(voter_prefs, str):
+            voter_prefs = [voter_prefs]
+        if isinstance(election_ranking, str):
+            election_ranking = [election_ranking]
+
         # Create a set of all candidates
         all_candidates = set(voter_prefs).union(set(election_ranking))
         n = len(all_candidates)

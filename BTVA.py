@@ -78,9 +78,8 @@ btva = BTVA()
 situation = Situation(10,5, seed=42)
 print('Original Situation: ')
 situation.print_preference_matrix()
-happiness_func = HappinessFunc.EXP
+happiness_func = HappinessFunc.WEIGHTED_POSITIONAL
 voting_scheme = VotingScheme.VOTE_FOR_TWO
 strategy_type = StrategyType.BURYING
-# ranking = Schemes().apply_voting_scheme(voting_scheme, situation.voters)
 sol = btva.analyse(situation, happiness_func, voting_scheme, strategy_type) # type: ignore
 btva.display_strategic_data(sol)

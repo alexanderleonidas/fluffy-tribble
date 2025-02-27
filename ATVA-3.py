@@ -111,10 +111,11 @@ class ATVA3:
 
 
 atva = ATVA3()
-situation = Situation(10,5, seed=42, info=0.1)
+situation = Situation(10,5, seed=42, info=0.5)
 print('Original Situation: ')
 situation.print_preference_matrix()
 situation, _ = atva.monte_carlo_best_preferences(situation, VotingScheme.BORDA)
+print('\nAfter Monte Carlo Simulation preferences:\n')
 situation.print_preference_matrix()
 happiness_func = HappinessFunc.EXP
 voting_scheme = VotingScheme.VOTE_FOR_TWO

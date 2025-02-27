@@ -4,7 +4,7 @@ from tva.voter import Voter
 
 
 class Situation:
-    def __init__(self, num_voters, num_candidates, seed=None, candidates=None, voters=None):
+    def __init__(self, num_voters, num_candidates, seed=None, candidates=None, voters=None, info=None):
         assert num_candidates > 0, "Number of candidates must be greater than 0."
         assert num_candidates < 10, "If the number of candidates is greater than 9, there are too many permutations to calculate quickly."
         if seed is not None:
@@ -26,6 +26,15 @@ class Situation:
                     voter = Voter(i, self.candidates)
                     voter.preferences = pref
                     self.voters.append(voter)
+        if info is not None:
+            for voter in self.voters:
+                new_preferences = []
+                for candidate in voter.preferences:
+                    if self.rng.random() < info:
+                        new_preferences.append("?")
+                    else:
+                        new_preferences.append(candidate)
+                voter.preferences = new_preferences
 
     def __create_situation(self, num_voters=4) -> list[Voter]:
         """ Creates a preference matrix """

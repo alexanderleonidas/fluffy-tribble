@@ -24,7 +24,7 @@ class BTVA:
                 print(f"    - Original Total Happiness: {strategy['original_total_happiness']:.3f}")
                 print("  ")
 
-    def analyse(self, situation: Situation, happiness_func: HappinessFunc, voting_scheme: VotingScheme, strategy_type: StrategyType):
+    def analyse_single(self, situation: Situation, happiness_func: HappinessFunc, voting_scheme: VotingScheme, strategy_type: StrategyType, verbose=False):
         output_dict = {}
         original_election_outcome = self.schemes.apply_voting_scheme(voting_scheme, situation.voters, return_ranking=True)
         if happiness_func == HappinessFunc.WEIGHTED_POSITIONAL or happiness_func == HappinessFunc.KENDALL_TAU:
@@ -32,10 +32,11 @@ class BTVA:
         else:
             total_h, individual_h = self.happiness.calculate(situation.voters, original_election_outcome[0], happiness_func)
 
-        print(f'Original winner: {original_election_outcome[0]}')
-        print(f'Total happiness: {total_h:.3f}')
-        print('Individual happiness')
-        print(" | ".join(f'Voter {k}: {h}' for k, h in individual_h.items()))
+        if verbose:
+            print(f'Original winner: {original_election_outcome[0]}')
+            print(f'Total happiness: {total_h:.3f}')
+            print('Individual happiness')
+            print(" | ".join(f'Voter {k}: {h}' for k, h in individual_h.items()))
 
         # ANALYSE STRATEGIC SITUATIONS HERE AND RETURN THE DATA IN THE OUTPUT_DICT
         strategic_situations = self.strategy.analyse_situation(situation, voting_scheme, happiness_func, strategy_type, exhaustive_search=True)
@@ -68,13 +69,39 @@ class BTVA:
 
         return output_dict
 
+    def analyse_multiple(self, n_repetitions, num_voters, num_candidates, voting_scheme, happiness_func, strategy_type, verbose=False):
+        strategy_counter = 0
+        for i in range(n_repetitions):
+            situation = Situation(num_voters=num_voters, num_candidates=num_candidates)
+            # Check if at least one voter has a good strategy
+            for voter_index in range(num_voters):
+                if self.strategy.get_strategic_preferences_for_voter(situation, voter_index, voting_scheme, happiness_func, strategy_type, True, verbose):
+                    strategy_counter += 1
+                    break
 
-btva = BTVA()
-situation = Situation(10,5, seed=42)
-print('Original Situation: ')
-situation.print_preference_matrix()
-happiness_func = HappinessFunc.WEIGHTED_POSITIONAL
-voting_scheme = VotingScheme.VOTE_FOR_TWO
-strategy_type = StrategyType.BURYING
-sol = btva.analyse(situation, happiness_func, voting_scheme, strategy_type) # type: ignore
-btva.display_strategic_data(sol)
+            if happiness_func == HappinessFunc.KENDALL_TAU or happiness_func == HappinessFunc.WEIGHTED_POSITIONAL:
+                election_ranking = self.schemes.apply_voting_scheme(voting_scheme, situation.voters, return_ranking=True)
+                honest_winner = election_ranking[0]
+                total_h, individual_h = self.happiness.calculate_ranked(situation.voters, election_ranking, happiness_func)
+            else:
+                honest_winner = self.schemes.apply_voting_scheme(voting_scheme, situation.voters)
+                total_h, individual_h = self.happiness.calculate(situation.voters, honest_winner, happiness_func)
+
+            # Happiness level for each voter
+            if verbose:
+                print(" | ".join(f'Voter {k}: {h}' for k, h in individual_h.items()))
+                print(f"Honest winner: {honest_winner}")
+                print(f"Honest overall happiness: {total_h:.3f}")
+
+        return (strategy_counter/n_repetitions) * 100
+
+# Example Usage
+# btva = BTVA()
+# situation = Situation(10,5, seed=42)
+# print('Original Situation: ')
+# situation.print_preference_matrix()
+# happiness_func = HappinessFunc.WEIGHTED_POSITIONAL
+# voting_scheme = VotingScheme.VOTE_FOR_TWO
+# strategy_type = StrategyType.BURYING
+# sol = btva.analyse_single(situation, happiness_func, voting_scheme, strategy_type) # type: ignore
+# btva.display_strategic_data(sol)

@@ -8,6 +8,9 @@ class VotingScheme(Enum):
     ANTI_PLURALITY = 'ANTI PLURALITY'
     BORDA = 'BORDA'
 
+    def __str__(self):
+        return self.value
+
 # Enum class for happiness functions
 class HappinessFunc(Enum):
     LOG = 'LOGARITHMIC'
@@ -16,7 +19,13 @@ class HappinessFunc(Enum):
     KENDALL_TAU = 'KENDALL TAU DISTANCE'
     WEIGHTED_POSITIONAL = 'WEIGHTED POSITIONAL'
 
+    def __str__(self):
+        return self.value
+
 class StrategyType(Enum):
     COMPROMISING = 'COMPROMISING'
     BURYING = 'BURYING'
     BULLET = 'BULLET'
+
+    def __str__(self):
+        return self.value

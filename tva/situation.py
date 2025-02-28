@@ -1,12 +1,13 @@
 import random
 import string
+from tabulate import tabulate
 from tva.voter import Voter
 
 
 class Situation:
     def __init__(self, num_voters, num_candidates, seed=None, candidates=None, voters=None, info=None):
         assert num_candidates > 0, "Number of candidates must be greater than 0."
-        assert num_candidates < 10, "If the number of candidates is greater than 9, there are too many permutations to calculate quickly."
+        assert num_candidates <= 20, "If the number of candidates is greater than 9, there are too many permutations to calculate quickly."
         if seed is not None:
             # Generate a random seed if none is provided
             self.seed = random.randint(0, 2**32 - 1)
@@ -59,19 +60,18 @@ class Situation:
         return message
 
     def print_preference_matrix(self):
-        # Extract voter IDs
-        voter_ids = [f"V{voter.voter_id}" for voter in self.voters]
+        # Extract voter IDs as header row
+        headers = [" "] + [f"V{voter.voter_id}" for voter in self.voters]
 
         # Convert Voter objects to lists of preferences
         matrix = [voter.preferences for voter in self.voters]
 
-        # Transpose the matrix to print column-wise
+        # Transpose the matrix so that ranks are rows and voters are columns
         transposed = list(zip(*matrix))
 
-        # Print the header with voter IDs
-        print("Preference matrix:")
-        print(f"{'        '} {' '.join(voter_ids)}")
+        # Add rank numbers
+        table_data = [[f"Rank {i + 1}"] + list(row) for i, row in enumerate(transposed)]
 
-        # Print the matrix in a clean format
-        for i, row in enumerate(transposed):
-            print(f"Rank {i + 1}   {'  '.join(row)}")
+        # Print formatted table without grid lines
+        print("Preference Matrix:")
+        print(tabulate(table_data, headers=headers, tablefmt="plain"))

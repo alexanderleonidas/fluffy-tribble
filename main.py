@@ -1,29 +1,27 @@
 from tva.enums import VotingScheme, StrategyType, HappinessFunc
-from BTVA import BTVA
+from tva.models.BTVA import BTVA
 
 ########## Choose experiment parameters ##########
 # Number of experiments to run
-n_repetitions = 100
+num_repetitions = 10
 # Number of Voters
-num_voters = 10
+num_voters = 20
 # Number of Candidates
-num_candidates = 4
+num_candidates = 6
 # Voting Scheme
 voting_scheme = VotingScheme.VOTE_FOR_TWO
 # Strategy type
-strategy_type = StrategyType.BURYING
+strategy_type = StrategyType.COMPROMISING
 # Happiness function
 happiness_func = HappinessFunc.KENDALL_TAU
 # Verbose
 verbose = False
 
 btva = BTVA()
-risk = btva.analyse_multiple(n_repetitions, num_voters, num_candidates, voting_scheme, happiness_func, strategy_type, verbose)
-print(f'{num_candidates} Candidates, {num_voters} Voters')
-print('Voting Scheme: ', voting_scheme)
-print('Strategy Type: ', strategy_type)
-print('Happiness Function: ', happiness_func)
-print(f'Risk of strategic voting: {risk}%')
+# risk = btva.analyse_multiple(num_repetitions, num_voters, num_candidates, voting_scheme, happiness_func, strategy_type, verbose)
+# print(f'Risk of strategic voting: {risk}%')
+btva.analyse_single(num_voters, num_candidates, happiness_func, voting_scheme, strategy_type, True)
+
 
 # for voter in situation.voters:
 #     og_happiness_voter = voter.calculate_happiness(honest_winner, happiness_func)

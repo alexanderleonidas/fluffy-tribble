@@ -3,7 +3,7 @@ from tva.situation import Situation
 from tva.happiness import Happiness
 from tva.voter import Voter
 from tva.enums import VotingScheme, HappinessFunc, StrategyType
-import copy
+from copy import deepcopy
 
 
 class Strategies:
@@ -16,14 +16,16 @@ class Strategies:
 
         strategic_situations = {}
         for voter in situation.voters:
+            print('voter ',voter.voter_id)
             strategic_preferences = self.get_strategic_preferences_for_voter(situation, voter.voter_id, voting_scheme, happiness_func, strategy, exhaustive_search=exhaustive_search)
             # print(strategic_preferences)
             if strategic_preferences is None:
                 continue
             
             situations = []
+            print(strategic_preferences)
             for preferences in strategic_preferences:
-                copied_situation = copy.deepcopy(situation)
+                copied_situation = deepcopy(situation)
                 copied_situation.voters[voter.voter_id].preferences = preferences
                 situations.append(copied_situation)
 
@@ -59,7 +61,7 @@ class Strategies:
 
             original_happiness = self.happiness.calculate_individual(voter.preferences, current_winner, happiness_func)
 
-        new_situation = copy.deepcopy(situation)
+        new_situation = deepcopy(situation)
 
         winning_strategies = []
         # If the winner is not the first preference of the voter, remove the winner from the voter's preferences
@@ -124,13 +126,13 @@ class Strategies:
     def __recursive_bury(self, situation:Situation, voter_index:int, past_preferences:list, original_voter:Voter, original_winner_happiness:float, voting_scheme:VotingScheme, happiness_func:HappinessFunc, exhaustive_search=False, winning_strategies:list=[], verbose=False):
         starting_preferences = situation.voters[voter_index].preferences
         num_candidates = len(starting_preferences)
-        modified_situation = copy.deepcopy(situation)
+        modified_situation = deepcopy(situation)
         # Save the original winner
         starting_winner, scores = self.schemes.apply_voting_scheme(voting_scheme, situation.voters, return_scores=True)
         starting_winner_index = starting_preferences.index(starting_winner) # type: ignore
         # Initialize the current winner
         
-        # Keep moving the winner to the right until it chantes the winner or reaches the end of the loop
+        # Keep moving the winner to the right until it changes the winner or reaches the end of the loop
         for i in range(starting_winner_index+1, num_candidates):
             self.__swap(modified_situation, voter_index, i-1, i, verbose)
             new_preferences = modified_situation.voters[voter_index].preferences
@@ -141,7 +143,7 @@ class Strategies:
                 if verbose:
                     print("Loop detected")
                 continue
-            past_preferences.append(copy.deepcopy(new_preferences))
+            past_preferences.append(deepcopy(new_preferences))
 
             if happiness_func == HappinessFunc.KENDALL_TAU or happiness_func == HappinessFunc.WEIGHTED_POSITIONAL:
                 elections_ranking, scores = self.schemes.apply_voting_scheme(voting_scheme, modified_situation.voters, return_ranking=True, return_scores=True)
@@ -196,7 +198,7 @@ class Strategies:
 
     def compromise(self, situation:Situation, voter_index:int, voting_scheme:VotingScheme, happiness_func:HappinessFunc, exhaustive_search=False, verbose=False) -> None | list[list[str]]:
         # Copy the situation
-        new_situation = copy.deepcopy(situation)
+        new_situation = deepcopy(situation)
         original_voter = new_situation.voters[voter_index]
         original_preferences = new_situation.voters[voter_index].preferences
         # If the original winner is the first preference of the voter, return False
@@ -239,9 +241,9 @@ class Strategies:
             if new_winner != original_winner and new_winner_happiness > original_winner_happiness:
                 if exhaustive_search:
                     all_winning_preferences.append(new_situation.voters[voter_index].preferences)
-                    print("Found a winning preference")
+                    if verbose: print("Found a winning preference")
                 else:
-                    print("Found a winning preference")
+                    if verbose: print("Found a winning preference")
                     return [new_situation.voters[voter_index].preferences]
 
         if exhaustive_search:

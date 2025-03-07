@@ -4,7 +4,7 @@ from tva.enums import HappinessFunc, VotingScheme, StrategyType
 from BTVA import BTVA
 import random
 
-class ATVA3(BTVA):
+class ATVA2(BTVA):
     def __init__(self):
         BTVA.__init__(self)
 

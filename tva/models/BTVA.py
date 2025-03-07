@@ -25,7 +25,7 @@ class BTVA:
                 print(f"    - Original Total Happiness: {strategy['original_total_happiness']:.3f}")
                 print("  ")
 
-    def analyse_single(self, situation:Situation, happiness_func: HappinessFunc, voting_scheme: VotingScheme, strategy_type: StrategyType, verbose=False):
+    def analyse_single(self, situation:Situation, happiness_func: HappinessFunc, voting_scheme: VotingScheme, strategy_type: StrategyType, verbose=False) -> dict[int, list[dict[str, float|int]]]:
         output_dict = {}
         total_h, individual_h, original_winner = situation.calculate_happiness(situation.voters, happiness_func, voting_scheme, return_winner=True) # type: ignore
         

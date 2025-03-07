@@ -1,7 +1,7 @@
 from copy import deepcopy
 from tva.situation import Situation
 from tva.enums import HappinessFunc, VotingScheme, StrategyType
-from BTVA import BTVA
+from tva.models.BTVA import BTVA
 import random
 
 class ATVA2(BTVA):

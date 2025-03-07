@@ -87,7 +87,7 @@ class Situation:
     def get_num_voters(self):
         return len(self.voters)
     
-    def calculate_individual_happiness(self, individual_preferences, happiness_func:HappinessFunc, voting_scheme:VotingScheme, return_winner=False):
+    def calculate_individual_happiness(self, individual_preferences: list[str], happiness_func:HappinessFunc, voting_scheme:VotingScheme, return_winner=False):
         if happiness_func == HappinessFunc.WEIGHTED_POSITIONAL or happiness_func == HappinessFunc.KENDALL_TAU:
             election_ranking = schemes.apply_voting_scheme(voting_scheme, self.voters, return_ranking=True)
             winner = election_ranking[0]

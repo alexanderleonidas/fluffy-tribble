@@ -17,7 +17,9 @@ class Strategies:
         for strategy in StrategyType:
             if verbose:
                 print(f"Applying strategy {strategy}")
-            strategic_preferences = self.get_strategic_preferences_for_voter(situation, voter_index, voting_scheme, happiness_func, strategy, exhaustive_search=exhaustive_search, verbose=verbose)
+            strategic_preferences = self.get_strategic_preferences_for_voter(situation, voter_index, voting_scheme, happiness_func, strategy, exhaustive_search=exhaustive_search, verbose=False)
+            if verbose:
+                print(strategic_preferences)
             if strategic_preferences is not None:
                 strategies[strategy] = strategic_preferences
         return strategies
@@ -186,7 +188,9 @@ class Strategies:
         original_preferences = new_situation.voters[voter_index].preferences
         # If the original winner is the first preference of the voter, return False
         original_winner_happiness, original_winner = new_situation.calculate_individual_happiness(original_voter.preferences, happiness_func, voting_scheme, return_winner=True) # type: ignore
+        
         original_winner_index = original_voter.preferences.index(original_winner) # type: ignore
+        _, scores = self.schemes.apply_voting_scheme(voting_scheme, new_situation.voters, return_scores=True)
         
         if verbose:
             print(original_preferences)

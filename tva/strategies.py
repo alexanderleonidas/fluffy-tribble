@@ -11,8 +11,19 @@ class Strategies:
         self.schemes = Schemes()
         self.happiness = Happiness()
         
-    def analyse_situation(self, situation: Situation, voting_scheme:VotingScheme, happiness_func:HappinessFunc, strategy:StrategyType, exhaustive_search=False, verbose=False) -> dict[int, list[Situation]]:
+    def apply_all_strategies_to_voter(self, situation: Situation, voter_index: int, voting_scheme:VotingScheme, happiness_func:HappinessFunc, exhaustive_search=False, verbose=False) -> dict[StrategyType, list[list[str]]]:
+        """Apply all strategies to a single voter"""
+        strategies = {}
+        for strategy in StrategyType:
+            if verbose:
+                print(f"Applying strategy {strategy}")
+            strategic_preferences = self.get_strategic_preferences_for_voter(situation, voter_index, voting_scheme, happiness_func, strategy, exhaustive_search=exhaustive_search, verbose=verbose)
+            if strategic_preferences is not None:
+                strategies[strategy] = strategic_preferences
+        return strategies
 
+    def get_strategic_preferences_for_all_voters(self, situation: Situation, voting_scheme:VotingScheme, happiness_func:HappinessFunc, strategy:StrategyType, exhaustive_search=False, verbose=False) -> dict[int, list[Situation]]:
+        """Returns a dictionary of voters and the strategic situations that increase their happiness after applying a single StrategyType"""
         strategic_situations = {}
         for voter in situation.voters:
             if verbose:

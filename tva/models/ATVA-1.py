@@ -33,9 +33,7 @@ class ATVA1(BTVA):
             print("No collusions found due to limited strategic moves in the situation")
             return False
         return True, merged, voter_indexes 
-    
 
-      
 
     def group_voters_by_preferences(self, preferences, strategies, stratVoters, election_ranking):
         voter_groups = defaultdict(list)
@@ -60,7 +58,6 @@ class ATVA1(BTVA):
         print(f"Voter groups based on common top pref and unique prefs : {voter_groups}")
         print("")
         
-        
         # find single voter groups 
         single_voter_groups = {key: voters for key, voters in voter_groups.items() if len(voters) == 1}
         # Get all aims
@@ -81,6 +78,7 @@ class ATVA1(BTVA):
                     
         return voter_groups
       
+
     # Get combos of voter collusions based on group (can be up to size 3 (adjustable))
     def form_voter_pairs(self, voter_groups, max_size=3):
         coalitions = []
@@ -93,7 +91,7 @@ class ATVA1(BTVA):
         return coalitions
 
 
-    def collude(self, coalitions, original_election_outcome, strategies, situation, voting_scheme, happiness_func):
+    def collude(self, coalitions, original_election_outcome, strategies, situation:Situation, voting_scheme:VotingScheme, happiness_func:HappinessFunc):
         winner = original_election_outcome[0][0]
         #Sort the coalitions by the number of voters. e.g. ('A', (1,3,5)) has 3 voters with aim to have A win. Sorts it by most voters with aim.
         coalitions = sorted(coalitions, key=lambda x: -len(x[1]))
@@ -105,7 +103,7 @@ class ATVA1(BTVA):
         processed_coalitions=set()
 
         for aim, voters in coalitions:
-            temp_situation = deepcopy(situation)
+            temp_situation: Situation = deepcopy(situation)
             best_strategies = self.select_best_strategy(voters, strategies, winner, aim)
     
             # Filter out voters who don't have a strategy towards aim
@@ -124,15 +122,10 @@ class ATVA1(BTVA):
                         
 
                 # Get new result
-                temp_election = self.schemes.apply_voting_scheme(voting_scheme, temp_situation.voters, True, True)
-                new_winner = temp_election[0][0]
-
-                # Calculate happiness
-                if happiness_func in [HappinessFunc.WEIGHTED_POSITIONAL, HappinessFunc.KENDALL_TAU]:
-                    temp_total_h, temp_individual_h = self.happiness.calculate_ranked(situation.voters, temp_election[0], happiness_func)
-                else:
-                    temp_total_h, temp_individual_h = self.happiness.calculate(situation.voters, temp_election[0][0], happiness_func)
-
+                temp_election = self.schemes.apply_voting_scheme(voting_scheme, temp_situation.voters, return_ranking=True)
+                new_winner = temp_election[0]
+                temp_total_h, temp_individual_h, new_winner = temp_situation.calculate_happiness(situation.voters, happiness_func, voting_scheme, return_winner=True) # type: ignore
+                
                 # Get happiness gain sum among all colluding voters. We choose the biggest one.
                 happiness_gain = sum(temp_individual_h.get(voter, 0) - strategies[voter][0]['original_individual_happiness'] for voter in voters)
                 
@@ -192,6 +185,7 @@ class ATVA1(BTVA):
             #print(best_coalition)
         print("No collusions found")
         return False
+
 
     def select_best_strategy(self, voters, strategies, original_winner, aim):
         selected_strategies = {}

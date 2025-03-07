@@ -11,12 +11,12 @@ class Strategies:
         self.schemes = Schemes()
         self.happiness = Happiness()
         
-    def analyse_situation(self, situation: Situation, voting_scheme:VotingScheme, happiness_func:HappinessFunc, strategy:StrategyType, exhaustive_search=False) -> dict[int, list[Situation]]:
-        """Prints the results of the voting schemes and the happiness of the voters"""
+    def analyse_situation(self, situation: Situation, voting_scheme:VotingScheme, happiness_func:HappinessFunc, strategy:StrategyType, exhaustive_search=False, verbose=False) -> dict[int, list[Situation]]:
 
         strategic_situations = {}
         for voter in situation.voters:
-            print('voter ',voter.voter_id)
+            if verbose:
+                print('voter ',voter.voter_id)
             strategic_preferences = self.get_strategic_preferences_for_voter(situation, voter.voter_id, voting_scheme, happiness_func, strategy, exhaustive_search=exhaustive_search)
             # print(strategic_preferences)
             if strategic_preferences is None:
@@ -45,21 +45,9 @@ class Strategies:
     def bullet_vote(self, situation: Situation, voter_index: int, voting_scheme:VotingScheme, happiness_func:HappinessFunc, exhaustive_search=False) -> None | list[list[str]]:
         """voting for just one alternative, despite having the option to vote for several"""
         voter: Voter = situation.voters[voter_index]
-
-        if happiness_func == HappinessFunc.WEIGHTED_POSITIONAL or happiness_func == HappinessFunc.KENDALL_TAU:
-            election_ranking = self.schemes.apply_voting_scheme(voting_scheme, situation.voters, return_ranking=True)
-            current_winner = election_ranking[0]
-            if current_winner == voter.preferences[0]:
-                return None
-            original_happiness = self.happiness.calculate_individual_ranked(voter.preferences, election_ranking, happiness_func)
-        else:
-            # Save the original happiness of this voter
-            current_winner:str = self.schemes.apply_voting_scheme(voting_scheme, situation.voters)
-            # If the current winner is the same as the voter's first preference, there is no need to bullet vote
-            if current_winner == voter.preferences[0]:
-                return None
-
-            original_happiness = self.happiness.calculate_individual(voter.preferences, current_winner, happiness_func)
+        original_happiness, current_winner = situation.calculate_individual_happiness(voter.preferences, happiness_func, voting_scheme, return_winner=True) # type: ignore
+        if current_winner == voter.preferences[0]:
+            return None
 
         new_situation = deepcopy(situation)
 
@@ -71,13 +59,7 @@ class Strategies:
                 return None
             
             new_situation.voters[voter_index].preferences.remove(current_winner)
-            if happiness_func == HappinessFunc.WEIGHTED_POSITIONAL or happiness_func == HappinessFunc.KENDALL_TAU:
-                election_ranking = self.schemes.apply_voting_scheme(voting_scheme, new_situation.voters, return_ranking=True)
-                current_winner = election_ranking[0]
-                current_happiness = self.happiness.calculate_individual_ranked(voter.preferences, election_ranking, happiness_func)
-            else:
-                current_winner:str = self.schemes.apply_voting_scheme(voting_scheme, new_situation.voters)
-                current_happiness = self.happiness.calculate_individual(voter.preferences, current_winner, happiness_func)
+            current_happiness, current_winner = new_situation.calculate_individual_happiness(voter.preferences, happiness_func, voting_scheme, return_winner=True) # type: ignore
 
             if current_happiness > original_happiness:
                 new_preferences = new_situation.voters[voter_index].preferences
@@ -144,18 +126,8 @@ class Strategies:
                     print("Loop detected")
                 continue
             past_preferences.append(deepcopy(new_preferences))
+            current_winner_happiness, current_winner = modified_situation.calculate_individual_happiness(original_voter.preferences, happiness_func, voting_scheme, return_winner=True) # type: ignore
 
-            if happiness_func == HappinessFunc.KENDALL_TAU or happiness_func == HappinessFunc.WEIGHTED_POSITIONAL:
-                elections_ranking, scores = self.schemes.apply_voting_scheme(voting_scheme, modified_situation.voters, return_ranking=True, return_scores=True)
-                current_winner = elections_ranking[0]
-                current_winner_happiness = self.happiness.calculate_individual_ranked(original_voter.preferences, elections_ranking, happiness_func)
-            else:
-                current_winner, scores = self.schemes.apply_voting_scheme(voting_scheme, modified_situation.voters, return_scores=True)
-                current_winner_happiness = self.happiness.calculate_individual(original_voter.preferences, current_winner, happiness_func)
-
-
-            if verbose:
-                print("Borda:", current_winner, scores)
             if current_winner != starting_winner:
                 if verbose:
                     print("Winner changed")
@@ -202,16 +174,9 @@ class Strategies:
         original_voter = new_situation.voters[voter_index]
         original_preferences = new_situation.voters[voter_index].preferences
         # If the original winner is the first preference of the voter, return False
-        if happiness_func == HappinessFunc.WEIGHTED_POSITIONAL or happiness_func == HappinessFunc.KENDALL_TAU:
-            election_ranking, scores = self.schemes.apply_voting_scheme(voting_scheme, new_situation.voters, return_scores=True, return_ranking=True)
-            original_winner = election_ranking[0]
-            original_winner_index = original_preferences.index(original_winner)
-            original_winner_happiness = self.happiness.calculate_individual_ranked(original_voter.preferences, election_ranking, happiness_func)
-        else:
-            original_winner, scores = self.schemes.apply_voting_scheme(voting_scheme, new_situation.voters, return_scores=True)
-            original_winner_index = original_preferences.index(original_winner) # type: ignore
-            original_winner_happiness = self.happiness.calculate_individual(original_voter.preferences, original_winner, happiness_func)
-
+        original_winner_happiness, original_winner = new_situation.calculate_individual_happiness(original_voter.preferences, happiness_func, voting_scheme, return_winner=True) # type: ignore
+        original_winner_index = original_voter.preferences.index(original_winner) # type: ignore
+        
         if verbose:
             print(original_preferences)
             print("Borda:", original_winner, scores)
@@ -226,17 +191,10 @@ class Strategies:
             # Move that candidate to the first position
             self.__swap(new_situation, voter_index, i, 0, verbose=verbose)
             # Check if the winner changed and if the voter is happier
-            if happiness_func == HappinessFunc.WEIGHTED_POSITIONAL or happiness_func == HappinessFunc.KENDALL_TAU:
-                new_election_ranking, scores = self.schemes.apply_voting_scheme(voting_scheme, new_situation.voters, return_scores=True, return_ranking=True)
-                new_winner = new_election_ranking[0]
-                new_winner_happiness = self.happiness.calculate_individual_ranked(original_voter.preferences, new_election_ranking, happiness_func)
-            else:
-                new_winner, scores = self.schemes.apply_voting_scheme(voting_scheme, new_situation.voters, return_scores=True)
-                new_winner_happiness = self.happiness.calculate_individual(original_voter.preferences, new_winner, happiness_func)
-
+            new_winner_happiness, new_winner = new_situation.calculate_individual_happiness(original_voter.preferences, happiness_func, voting_scheme, return_winner=True) # type: ignore
+        
             if verbose:
                 print(new_situation.voters[voter_index].preferences)
-                print("Borda:", new_winner, scores)
 
             if new_winner != original_winner and new_winner_happiness > original_winner_happiness:
                 if exhaustive_search:

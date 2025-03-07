@@ -27,20 +27,16 @@ class BTVA:
 
     def analyse_single(self, num_voters: int, num_candidates: int, happiness_func: HappinessFunc, voting_scheme: VotingScheme, strategy_type: StrategyType, verbose=False):
         output_dict = {}
-        situation = Situation(num_voters, num_candidates)
-        original_election_outcome = self.schemes.apply_voting_scheme(voting_scheme, situation.voters, return_ranking=True)
-        if happiness_func == HappinessFunc.WEIGHTED_POSITIONAL or happiness_func == HappinessFunc.KENDALL_TAU:
-            total_h, individual_h = self.happiness.calculate_ranked(situation.voters, original_election_outcome, happiness_func=happiness_func)
-        else:
-            total_h, individual_h = self.happiness.calculate(situation.voters, original_election_outcome[0], happiness_func)
-
+        situation = Situation(num_voters, num_candidates, seed=42)
+        total_h, individual_h, original_winner = situation.calculate_happiness(situation.voters, happiness_func, voting_scheme, return_winner=True) # type: ignore
+        
         if verbose:
             print(f'{num_candidates} Candidates, {num_voters} Voters')
             print('Voting Scheme: ', voting_scheme)
             print('Strategy Type: ', strategy_type)
             print('Happiness Function: ', happiness_func)
             situation.print_preference_matrix()
-            print(f'Original winner: {original_election_outcome[0]}')
+            print(f'Original winner: {original_winner}')
             print(f'Total happiness: {total_h:.3f}')
             print('Individual happiness')
             print(" | ".join(f'Voter {k}: {h}' for k, h in individual_h.items()))
@@ -52,6 +48,7 @@ class BTVA:
             for voter_id, strategic_situation in strategic_situations.items():
                 s_i = []
                 for strat in strategic_situation:
+
                     if happiness_func == HappinessFunc.WEIGHTED_POSITIONAL or happiness_func == HappinessFunc.KENDALL_TAU:
                         temp_election_ranking = self.schemes.apply_voting_scheme(voting_scheme, strat.voters, return_ranking=True)
                         temp_winner = temp_election_ranking[0]
@@ -62,7 +59,8 @@ class BTVA:
 
                     # Choose only the strategies that increase a voters individual happiness
                     if temp_individual_h[voter_id] > individual_h[voter_id]:
-                        s_ij = {'strategy': strat.voters[voter_id].preferences,
+                        s_ij = {
+                                'strategy': strat.voters[voter_id].preferences,
                                 'strategic_winner': temp_winner,
                                 'strategic_individual_happiness': temp_individual_h[voter_id],
                                 'original_individual_happiness': individual_h[voter_id],
@@ -93,17 +91,9 @@ class BTVA:
                     strategy_counter += 1
                     break
 
-            if happiness_func == HappinessFunc.KENDALL_TAU or happiness_func == HappinessFunc.WEIGHTED_POSITIONAL:
-                election_ranking = self.schemes.apply_voting_scheme(voting_scheme, situation.voters, return_ranking=True)
-                honest_winner = election_ranking[0]
-                total_h, individual_h = self.happiness.calculate_ranked(situation.voters, election_ranking, happiness_func)
-            else:
-                honest_winner = self.schemes.apply_voting_scheme(voting_scheme, situation.voters)
-                total_h, individual_h = self.happiness.calculate(situation.voters, honest_winner, happiness_func)
-
             # Happiness level for each voter
             if verbose:
-                # print(" | ".join(f'Voter {k}: {h}' for k, h in individual_h.items()))
+                total_h, _, honest_winner = situation.calculate_happiness(situation.voters, happiness_func, voting_scheme, return_winner=True) # type: ignore
                 print(f"Honest winner: {honest_winner}")
                 print(f"Honest overall happiness: {total_h:.3f}")
 

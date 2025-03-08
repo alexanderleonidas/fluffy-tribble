@@ -6,8 +6,8 @@ from tva.voter import Voter
 
 class Situation:
     def __init__(self, num_voters, num_candidates, seed=None, candidates=None, voters=None, info=None):
-        assert num_candidates > 0, "Number of candidates must be greater than 0."
-        assert num_candidates <= 20, "If the number of candidates is greater than 9, there are too many permutations to calculate quickly."
+        assert (num_candidates > 0), "Number of candidates must be greater than 0."
+        assert (num_candidates <= 20), "If the number of candidates is greater than 9, there are too many permutations to calculate quickly."
         if seed is not None:
             # Generate a random seed if none is provided
             self.seed = random.randint(0, 2**32 - 1)

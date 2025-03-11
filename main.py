@@ -1,5 +1,6 @@
 from tva.enums import VotingScheme, StrategyType, HappinessFunc
 from tva.models.BTVA import BTVA
+from tva.situation import Situation
 
 ########## Choose experiment parameters ##########
 # Number of experiments to run
@@ -20,7 +21,8 @@ verbose = False
 btva = BTVA()
 # risk = btva.analyse_multiple(num_repetitions, num_voters, num_candidates, voting_scheme, happiness_func, strategy_type, verbose)
 # print(f'Risk of strategic voting: {risk}%')
-btva.analyse_single(num_voters, num_candidates, happiness_func, voting_scheme, strategy_type, True)
+situation = Situation(num_voters=num_voters, num_candidates=num_candidates)
+btva.analyse_single(situation, happiness_func, voting_scheme, strategy_type, True)
 
 
 # for voter in situation.voters:

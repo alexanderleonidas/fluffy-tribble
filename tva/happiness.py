@@ -14,12 +14,12 @@ class Happiness:
             total_happiness += score
         return total_happiness, individual_happiness
 
-    def calculate_individual_ranked(self, preference, election_ranking: list, happiness_func: HappinessFunc):
+    def calculate_individual_ranked(self, preferences: list[str], election_ranking: list, happiness_func: HappinessFunc):
         """Calculate individual happiness based on the specified happiness function and ranked outcome."""
         if happiness_func == HappinessFunc.KENDALL_TAU:
-            return self.__kendall_tau_happiness(preference, election_ranking)
+            return self.__kendall_tau_happiness(preferences, election_ranking)
         elif happiness_func == HappinessFunc.WEIGHTED_POSITIONAL:
-            return self.__weighted_positional_happiness(preference, election_ranking)
+            return self.__weighted_positional_happiness(preferences, election_ranking)
         else:
             raise Exception(f'{happiness_func} cannot be used for this happiness calculation')
 
@@ -32,19 +32,19 @@ class Happiness:
             total_happiness += score # type: ignore
         return total_happiness, individual_happiness
 
-    def calculate_individual(self, preference, winner: str, happiness_func: HappinessFunc):
+    def calculate_individual(self, preferences: list[str], winner: str, happiness_func: HappinessFunc):
         """ Apply the specified voting scheme to determine the winner. """
         if happiness_func == HappinessFunc.LOG:
-            return self.__logarithmic_happiness(preference, winner)
+            return self.__logarithmic_happiness(preferences, winner)
         elif happiness_func == HappinessFunc.EXP:
-            return self.__exponential_happiness(preference, winner)
+            return self.__exponential_happiness(preferences, winner)
         elif happiness_func == HappinessFunc.LINEAR:
-            return self.__linear_happiness(preference, winner)
+            return self.__linear_happiness(preferences, winner)
         else:
             raise Exception(f'{happiness_func} cannot be used for this happiness calculation')
 
     @staticmethod
-    def __logarithmic_happiness(preferences:list, winner: str):
+    def __logarithmic_happiness(preferences: list[str], winner: str):
         """
         A logarithmic decay hapiness function.
         If the winning candidate is ranked r (1-indexed),

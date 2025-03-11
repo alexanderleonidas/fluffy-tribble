@@ -240,5 +240,3 @@ class ATVA4(BTVA):
             'atva4_risk': atva4_risk,
             'happiness_improvement_rate': happiness_improvement_rate
         }
-
-

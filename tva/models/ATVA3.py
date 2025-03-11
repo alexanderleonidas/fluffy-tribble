@@ -1,7 +1,7 @@
 from copy import deepcopy
 from tva.situation import Situation
 from tva.enums import HappinessFunc, VotingScheme, StrategyType
-from BTVA import BTVA
+from tva.models.BTVA import BTVA
 import random
 
 class ATVA3(BTVA):
@@ -56,5 +56,5 @@ happiness_func = HappinessFunc.EXP
 voting_scheme = VotingScheme.VOTE_FOR_TWO
 strategy_type = StrategyType.BURYING
 # ranking = Schemes().apply_voting_scheme(voting_scheme, situation.voters)
-sol = atva.analyse(situation, happiness_func, voting_scheme, strategy_type) # type: ignore
+sol = atva.analyse_single(situation, happiness_func, voting_scheme, strategy_type) # type: ignore
 atva.display_strategic_data(sol)

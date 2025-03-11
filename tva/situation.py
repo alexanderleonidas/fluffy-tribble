@@ -2,12 +2,18 @@ import random
 import string
 from tabulate import tabulate
 from tva.voter import Voter
+from tva.schemes import Schemes
+from tva.happiness import Happiness
+from tva.enums import HappinessFunc, VotingScheme
 
+schemes = Schemes()
+happiness = Happiness()
 
 class Situation:
-    def __init__(self, num_voters, num_candidates, seed=None, candidates=None, voters=None, info=None):
-        assert (num_candidates > 0), "Number of candidates must be greater than 0."
-        assert (num_candidates <= 20), "If the number of candidates is greater than 9, there are too many permutations to calculate quickly."
+    def __init__(self, num_voters:int, num_candidates:int, seed=None, candidates=None, voters=None, info=None):
+        assert num_candidates > 0, "Number of candidates must be greater than 0."
+        assert num_candidates <= 20, "If the number of candidates is greater than 9, there are too many permutations to calculate quickly."
+        
         if seed is not None:
             # Generate a random seed if none is provided
             self.seed = random.randint(0, 2**32 - 1)
@@ -75,3 +81,36 @@ class Situation:
         # Print formatted table without grid lines
         print("Preference Matrix:")
         print(tabulate(table_data, headers=headers, tablefmt="plain"))
+
+    def get_num_candidates(self):
+        return len(self.candidates)
+    
+    def get_num_voters(self):
+        return len(self.voters)
+    
+    def calculate_individual_happiness(self, individual_preferences: list[str], happiness_func:HappinessFunc, voting_scheme:VotingScheme, return_winner=False):
+        if happiness_func == HappinessFunc.WEIGHTED_POSITIONAL or happiness_func == HappinessFunc.KENDALL_TAU:
+            election_ranking = schemes.apply_voting_scheme(voting_scheme, self.voters, return_ranking=True)
+            winner = election_ranking[0]
+            winner_happiness = happiness.calculate_individual_ranked(individual_preferences, election_ranking, happiness_func)
+        else:
+            winner = schemes.apply_voting_scheme(voting_scheme, self.voters)
+            winner_happiness = happiness.calculate_individual(individual_preferences, winner, happiness_func)
+        if return_winner:
+            return winner_happiness, winner
+        else:
+            return winner_happiness
+        
+    def calculate_happiness(self, preference_matrix:list[Voter], happiness_func:HappinessFunc, voting_scheme:VotingScheme, return_winner=False):
+        if happiness_func == HappinessFunc.WEIGHTED_POSITIONAL or happiness_func == HappinessFunc.KENDALL_TAU:
+            election_ranking = schemes.apply_voting_scheme(voting_scheme, self.voters, return_ranking=True)
+            winner = election_ranking[0]
+            total_happiness, individual_happiness = happiness.calculate_ranked(preference_matrix, election_ranking, happiness_func)
+        else:
+            winner = schemes.apply_voting_scheme(voting_scheme, self.voters)
+            total_happiness, individual_happiness = happiness.calculate(preference_matrix, winner, happiness_func)
+        if return_winner:
+            return total_happiness, individual_happiness, winner
+        else:
+            return total_happiness, individual_happiness
+    

@@ -50,15 +50,15 @@ class BTVA:
                     temp_total_h, temp_individual_h, temp_winner = strat.calculate_happiness(situation.voters, happiness_func, voting_scheme, return_winner=True) # type: ignore
 
                     # Choose only the strategies that increase a voters individual happiness
-                    if temp_individual_h[voter_id] > individual_h[voter_id]:
-                        s_ij = {
-                                'strategy': strat.voters[voter_id].preferences,
-                                'strategic_winner': temp_winner,
-                                'strategic_individual_happiness': temp_individual_h[voter_id],
-                                'original_individual_happiness': individual_h[voter_id],
-                                'strategic_total_happiness': temp_total_h,
-                                'original_total_happiness': total_h}
-                        s_i.append(s_ij)
+                    # if temp_individual_h[voter_id] > individual_h[voter_id]:
+                    s_ij = {
+                            'strategy': strat.voters[voter_id].preferences,
+                            'strategic_winner': temp_winner,
+                            'strategic_individual_happiness': temp_individual_h[voter_id],
+                            'original_individual_happiness': individual_h[voter_id],
+                            'strategic_total_happiness': temp_total_h,
+                            'original_total_happiness': total_h}
+                    if s_ij: s_i.append(s_ij)
 
                 output_dict[voter_id] = s_i
             if verbose: self.display_strategic_data(output_dict)

@@ -94,7 +94,7 @@ class Strategies:
     def bury(self, situation:Situation, voter_index:int, voting_scheme:VotingScheme, happiness_func:HappinessFunc, exhaustive_search=False, verbose=False) -> None | list[list[str]]:
         original_voter = situation.voters[voter_index]
         original_preferences = situation.voters[voter_index].preferences
-        # If the original winner is the first preference of the voter, return False
+
         if happiness_func == HappinessFunc.WEIGHTED_POSITIONAL or happiness_func == HappinessFunc.KENDALL_TAU:
             election_ranking, scores = self.schemes.apply_voting_scheme(voting_scheme, situation.voters, return_ranking=True, return_scores=True)
             original_winner = election_ranking[0]
@@ -109,6 +109,7 @@ class Strategies:
             print(original_preferences)
             print("Borda:", original_winner, scores)
 
+        # If the original winner is the first preference of the voter, return False
         if original_winner_index == 0:
             return None
         past_preferences = [original_preferences]

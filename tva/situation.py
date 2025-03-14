@@ -101,14 +101,14 @@ class Situation:
         else:
             return winner_happiness
         
-    def calculate_happiness(self, preference_matrix:list[Voter], happiness_func:HappinessFunc, voting_scheme:VotingScheme, return_winner=False):
+    def calculate_happiness(self, happiness_func:HappinessFunc, voting_scheme:VotingScheme, return_winner=False):
         if happiness_func == HappinessFunc.WEIGHTED_POSITIONAL or happiness_func == HappinessFunc.KENDALL_TAU:
             election_ranking = schemes.apply_voting_scheme(voting_scheme, self.voters, return_ranking=True)
             winner = election_ranking[0]
-            total_happiness, individual_happiness = happiness.calculate_ranked(preference_matrix, election_ranking, happiness_func)
+            total_happiness, individual_happiness = happiness.calculate_ranked(self.voters, election_ranking, happiness_func)
         else:
             winner = schemes.apply_voting_scheme(voting_scheme, self.voters)
-            total_happiness, individual_happiness = happiness.calculate(preference_matrix, winner, happiness_func)
+            total_happiness, individual_happiness = happiness.calculate(self.voters, winner, happiness_func)
         if return_winner:
             return total_happiness, individual_happiness, winner
         else:

@@ -4,13 +4,13 @@ from tva.situation import Situation
 
 ########## Choose experiment parameters ##########
 # Number of experiments to run
-num_repetitions = 10
+num_repetitions = 100
 # Number of Voters
-num_voters = 20
+num_voters = 6
 # Number of Candidates
-num_candidates = 6
+num_candidates = 5
 # Voting Scheme
-voting_scheme = VotingScheme.VOTE_FOR_TWO
+voting_scheme = VotingScheme.BORDA
 # Strategy type
 strategy_type = StrategyType.COMPROMISING
 # Happiness function
@@ -21,8 +21,10 @@ verbose = False
 
 
 btva = BTVA()
-# situations = [Situation(num_voters, num_candidates) for _ in range(num_repetitions)]
-# risk = btva.analyse_multiple(situations, voting_scheme, happiness_func, strategy_type, verbose)
-# print(f'Risk of strategic voting: {risk}%')
-situation = Situation(num_voters=num_voters, num_candidates=num_candidates)
-btva.analyse_single(situation, happiness_func, voting_scheme, strategy_type, True)
+situations = [Situation(num_voters, num_candidates) for _ in range(num_repetitions)]
+risk, avg_strat_happiness, avg_honest_happiness  = btva.analyse_multiple(situations, voting_scheme, happiness_func, strategy_type, True, verbose)
+print(f'Risk of strategic voting: {risk}%, Average Strategic Happiness: {avg_strat_happiness:.3f}, Average Honest Happiness: {avg_honest_happiness:.3f}')
+
+# situation = Situation(num_voters=num_voters, num_candidates=num_candidates)
+# output = btva.analyse_single(situation, happiness_func, voting_scheme, strategy_type, True)
+# print(len(output))

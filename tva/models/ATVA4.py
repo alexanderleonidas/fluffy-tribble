@@ -201,8 +201,7 @@ class ATVA4(BTVA):
                     print(f"  Voter {voter_id}: {gain:+.3f}")
                 print(f"Total happiness change: {opp['total_happiness_change']:+.3f}")
 
-    def analyse_multiple(self, num_repetitions, num_voters, num_candidates, 
-                         voting_scheme, happiness_func, strategy_type, verbose=False):
+    def analyse_multiple(self, num_repetitions, num_voters, num_candidates, voting_scheme, happiness_func, strategy_type, verbose=False):
         """
         Run multiple analyses to determine ATVA4 risk and happiness improvement.
         

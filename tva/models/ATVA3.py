@@ -41,20 +41,18 @@ class ATVA3(BTVA):
             if overall_happiness > max_overall_happiness:
                 max_overall_happiness = overall_happiness
                 best_situation = sim_situation
-            
         return best_situation, max_overall_happiness
-
-
-atva = ATVA3()
-situation = Situation(10,5, seed=42, info=0.5)
-print('Original Situation: ')
-situation.print_preference_matrix()
-situation, _ = atva.monte_carlo_best_preferences(situation, VotingScheme.BORDA)
-print('\nAfter Monte Carlo Simulation preferences:\n')
-situation.print_preference_matrix()
-happiness_func = HappinessFunc.EXP
-voting_scheme = VotingScheme.VOTE_FOR_TWO
-strategy_type = StrategyType.BURYING
+#
+#atva = ATVA3()
+#situation = Situation(10,5, seed=42, info=0.5)
+#print('Original Situation: ')
+#situation.print_preference_matrix()
+#situation, _ = atva.monte_carlo_best_preferences(situation, VotingScheme.BORDA)
+#print('\nAfter Monte Carlo Simulation preferences:\n')
+#situation.print_preference_matrix()
+#happiness_func = HappinessFunc.EXP
+#voting_scheme = VotingScheme.VOTE_FOR_TWO
+#strategy_type = StrategyType.BURYING
 # ranking = Schemes().apply_voting_scheme(voting_scheme, situation.voters)
-sol = atva.analyse_single(situation, happiness_func, voting_scheme, strategy_type) # type: ignore
-atva.display_strategic_data(sol)
+#sol = atva.analyse_single(situation, happiness_func, voting_scheme, strategy_type) # type: ignore
+#atva.display_strategic_data(sol)
